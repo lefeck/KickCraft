@@ -1,0 +1,101 @@
+/* Packages Tab Styles */
+
+/* Software Repositories - Card Style (UbuntuCraft style) */
+.repo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.repo-card {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    background: #f8f9fa;
+}
+
+.repo-card .repo-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.repo-card .repo-card-type {
+    font-weight: 600;
+    color: #495057;
+}
+
+.repo-card .form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.repo-card .form-group {
+    margin-bottom: 0;
+}
+
+.repo-card .form-group label {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.repo-card .repo-name-input,
+.repo-card .repo-url-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.repo-card .repo-name-input:focus,
+.repo-card .repo-url-input:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Add button styling */
+.add-item-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    font-size: 14px;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.add-item-btn:hover {
+    background-color: #0b5ed7;
+}
+
+/* Remove button styling for repo cards */
+.remove-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.remove-btn:hover {
+    background-color: #c82333;
+}
+
+/* Package Groups - Switch Layout */
+.package-group-switches {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.package-group-switches .switch-container {
+    padding: 8px 12px;
+}

@@ -1,0 +1,180 @@
+/* Switch grid for advanced options */
+.switch-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 24px;
+    margin: 12px 0;
+}
+
+.switch-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.switch-item .switch {
+    width: 40px;
+    height: 22px;
+}
+
+.switch-item .slider {
+    border-radius: 11px;
+}
+
+.switch-item .slider:before {
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    border-radius: 50%;
+}
+
+.switch-item input:checked + .slider:before {
+    transform: translateX(18px);
+}
+
+.switch-label {
+    font-size: 13px;
+    color: #495057;
+}
+
+#networkDevices {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.network-device {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 0;
+    background: #f8f9fa;
+}
+
+.network-device .device-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.network-device .device-body {
+    display: block;
+}
+
+.device-type {
+    font-weight: 600;
+    color: #495057;
+    font-size: 15px;
+}
+
+.static-options {
+    margin: 14px 0 18px;
+    padding: 16px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+}
+
+.static-options.hidden {
+    display: none;
+}
+
+.static-options .form-row {
+    margin-bottom: 12px;
+}
+
+.static-options .form-row:last-child {
+    margin-bottom: 0;
+}
+
+.net-advanced {
+    margin-top: 16px;
+    border-top: 1px solid #dee2e6;
+    padding-top: 12px;
+}
+
+.net-advanced summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #495057;
+    padding: 8px 0;
+    font-size: 14px;
+    transition: color 0.2s ease;
+}
+
+.net-advanced summary:hover {
+    color: #667eea;
+}
+
+.net-advanced-content {
+    margin-top: 14px;
+}
+
+.net-advanced .form-fieldset {
+    margin-bottom: 14px;
+    padding: 14px;
+    background: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.net-advanced .form-fieldset:last-child {
+    margin-bottom: 0;
+}
+
+.net-advanced .form-fieldset legend {
+    font-weight: 600;
+    color: #495057;
+    font-size: 13px;
+    padding: 0 6px;
+}
+
+input.net-ip,
+input.net-gateway,
+input.net-netmask {
+    font-family: monospace;
+}
+
+input.net-ip:invalid,
+input.net-gateway:invalid,
+input.net-netmask:invalid {
+    border-color: var(--warning-color);
+}
+
+#addNetworkBtn {
+    margin-top: 12px;
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#addNetworkBtn:hover {
+    background: #5a6fd6;
+}
+
+/* Remove button - matches UbuntuCraft style */
+.network-device .remove-btn,
+.network-device .device-delete {
+    background: #dc3545;
+    color: #ffffff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.network-device .remove-btn:hover,
+.network-device .device-delete:hover {
+    background: #c82333;
+}

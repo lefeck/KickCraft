@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KickCraft</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/tabs/templates.css">
+    <link rel="stylesheet" href="/css/tabs/basic.css">
+    <link rel="stylesheet" href="/css/tabs/advanced.css">
+    <link rel="stylesheet" href="/css/tabs/network.css">
+    <link rel="stylesheet" href="/css/tabs/storage.css">
+    <link rel="stylesheet" href="/css/tabs/packages.css">
+    <link rel="stylesheet" href="/css/tabs/scripts.css">
+    
+    <!-- JavaScript Modules -->
+    <script src="/js/modules/config-manager.js"></script>
+    <script src="/js/modules/storage-manager.js"></script>
+    <script src="/js/modules/network-manager.js"></script>
+    <script src="/js/modules/system-info-manager.js"></script>
+    <script src="/js/modules/iso-generator.js"></script>
+    <script src="/js/modules/templates-manager.js"></script>
+    <script src="/js/modules/embedded-files-manager.js"></script>
+    <script src="/js/app.js"></script>
+</head>
+<body>
+    <!-- App Shell: Sidebar + Main Content -->
+    <div class="app-shell">
+
+        <!-- Left Sidebar Navigation -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-brand">
+                <img src="/static/css/tabs/symbol.png" alt="KickCraft" class="brand-icon">
+                <span class="brand-text">KickCraft</span>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="sidebar-item active" data-page="system-info" onclick="AppNavigation.switchPage('system-info')">
+                    <span class="sidebar-label">System Info</span>
+                </button>
+                <button class="sidebar-item" data-page="config" onclick="AppNavigation.switchPage('config')">
+                    <span class="sidebar-label">Configuration</span>
+                </button>
+                <button class="sidebar-item" data-page="preview" onclick="AppNavigation.switchPage('preview')">
+                    <span class="sidebar-label">Config Preview</span>
+                </button>
+                <button class="sidebar-item" data-page="iso" onclick="AppNavigation.switchPage('iso')">
+                    <span class="sidebar-label">ISO Builder</span>
+                </button>
+                <button class="sidebar-item" data-page="templates" onclick="AppNavigation.switchPage('templates')">
+                    <span class="sidebar-label">Templates</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <div id="serviceStatusIndicator" class="service-status-indicator" title="Click to refresh">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Online</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="main-content">
+
+            <!-- Page: System Info -->
+            <div class="content-page active" data-page="system-info">
+                <div class="page-header">
+                    <h2>System Info</h2>
+                </div>
+                <div id="systemInfoContent" class="system-info-content">
+                    <div class="system-info-loading" id="systemInfoLoading">
+                        <div class="loading-spinner"></div>
+                        <span>Loading system information...</span>
+                    </div>
+                    <div class="system-info-grid" id="systemInfoGrid" style="display: none;">
+                        <!-- OS Section -->
+                        <div class="system-info-card">
+                            <div class="system-info-card-header">
+                                <span class="system-info-icon">&#x1F4BB;</span>
+                                <h3>Operating System</h3>
+                            </div>
+                            <div class="system-info-card-body">
+                                <div class="system-info-row">
+                                    <span class="system-info-label">Distribution</span>
+                                    <span class="system-info-value" id="hostPrettyName">-</span>
+                                </div>
+                                <div class="system-info-row">
+                                    <span class="system-info-label">Name</span>
+                                    <span class="system-info-value" id="hostName">-</span>
+                                </div>
+                                <div class="system-info-row">
+                                    <span class="system-info-label">Version</span>
+                                    <span class="system-info-value" id="hostVersion">-</span>
+                                </div>
+                                <div class="system-info-row">
+                                    <span class="system-info-label">Codename</span>
+                                    <span class="system-info-value" id="hostCodename">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hardware Section -->
+                        <div class="system-info-card">
+                            <div class="system-info-card-header">
+                                <span class="system-info-icon">&#x1F5A5;</span>
+                                <h3>Hardware</h3>
+                            </div>
+                            <div class="system-info-card-body">
+                                <div class="system-info-row">
+                                    <span class="system-info-label">Architecture</span>
+                                    <span class="system-info-value" id="hostArch">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Kernel Section -->
+                        <div class="system-info-card">
+                            <div class="system-info-card-header">
+                                <span class="system-info-icon">&#x2699;</span>
+                                <h3>Kernel</h3>
+                            </div>
+                            <div class="system-info-card-body">
+                                <div class="system-info-row">
+                                    <span class="system-info-label">Release</span>
+                                    <span class="system-info-value" id="hostKernel">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Runtime Section -->
+                        <div class="system-info-card">
+                            <div class="system-info-card-header">
+                                <span class="system-info-icon">&#x1F40D;</span>
+                                <h3>Runtime</h3>
+                            </div>
+                            <div class="system-info-card-body">
+                                <div class="system-info-row">
+                                    <span class="system-info-label">Go Version</span>
+                                    <span class="system-info-value" id="hostGoVersion">-</span>
+                                </div>
+                                <div class="system-info-row">
+                                    <span class="system-info-label">Go Arch</span>
+                                    <span class="system-info-value" id="hostGoArch">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="system-info-error" id="systemInfoError" style="display: none;">
+                        <span class="system-info-error-icon">&#x26A0;</span>
+                        <span id="systemInfoErrorMsg">Failed to load system information</span>
+                    </div>
+                    <div class="system-info-note">
+                        <p><strong>Note:</strong> This page shows the current build host system. The target ISO release is selected separately in the <strong>ISO Builder</strong> page.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page: Configuration Management -->
+            <div class="content-page" data-page="config">
+                <div class="page-header">
+                    <h2>Configuration Management</h2>
+                </div>
+                <div class="tabs">
+                    <div class="tab active" data-tab="basic">Basic Configuration</div>
+                    <div class="tab" data-tab="storage">Storage Configuration</div>
+                    <div class="tab" data-tab="network">Network Configuration</div>
+                    <div class="tab" data-tab="packages">Packages</div>
+                    <div class="tab" data-tab="embedded">Embedded Files</div>
+                    <div class="tab" data-tab="scripts">Advanced Configuration</div>
+                    <div class="tab" data-tab="advanced">Advanced</div>
+                </div>
+
+                <!-- Basic Configuration -->
+                <div class="tab-content active" id="basic">
+                    <div class="form-grid">
+                        <!-- Locale Section -->
+                        <fieldset class="section-fieldset">
+                            <legend>Locale</legend>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="langSelect">Language <span class="hint-icon" data-tooltip="System language for the installed OS">?</span></label>
+                                    <select id="langSelect" class="form-select">
+                                        <!-- English -->
+                                        <option value="en_US.UTF-8">English (US)</option>
+                                        <option value="en_GB.UTF-8">English (UK)</option>
+                                        <option value="en_AU.UTF-8">English (Australia)</option>
+                                        <option value="en_CA.UTF-8">English (Canada)</option>
+                                        <!-- Chinese -->
+                                        <option value="zh_CN.UTF-8">Chinese (Simplified, China)</option>
+                                        <option value="zh_TW.UTF-8">Chinese (Traditional, Taiwan)</option>
+                                        <option value="zh_HK.UTF-8">Chinese (Hong Kong)</option>
+                                        <option value="zh_SG.UTF-8">Chinese (Singapore)</option>
+                                        <!-- Japanese/Korean -->
+                                        <option value="ja_JP.UTF-8">Japanese</option>
+                                        <option value="ko_KR.UTF-8">Korean</option>
+                                        <!-- European -->
+                                        <option value="de_DE.UTF-8">German (Germany)</option>
+                                        <option value="de_CH.UTF-8">German (Switzerland)</option>
+                                        <option value="de_AT.UTF-8">German (Austria)</option>
+                                        <option value="fr_FR.UTF-8">French (France)</option>
+                                        <option value="fr_CA.UTF-8">French (Canada)</option>
+                                        <option value="fr_BE.UTF-8">French (Belgium)</option>
+                                        <option value="es_ES.UTF-8">Spanish (Spain)</option>
+                                        <option value="es_MX.UTF-8">Spanish (Mexico)</option>
+                                        <option value="es_AR.UTF-8">Spanish (Argentina)</option>
+                                        <option value="pt_BR.UTF-8">Portuguese (Brazil)</option>
+                                        <option value="pt_PT.UTF-8">Portuguese (Portugal)</option>
+                                        <option value="it_IT.UTF-8">Italian</option>
+                                        <option value="nl_NL.UTF-8">Dutch</option>
+                                        <option value="nl_BE.UTF-8">Dutch (Belgium)</option>
+                                        <option value="ru_RU.UTF-8">Russian</option>
+                                        <option value="uk_UA.UTF-8">Ukrainian</option>
+                                        <option value="pl_PL.UTF-8">Polish</option>
+                                        <option value="cs_CZ.UTF-8">Czech</option>
+                                        <option value="sk_SK.UTF-8">Slovak</option>
+                                        <option value="hu_HU.UTF-8">Hungarian</option>
+                                        <option value="ro_RO.UTF-8">Romanian</option>
+                                        <option value="bg_BG.UTF-8">Bulgarian</option>
+                                        <option value="el_GR.UTF-8">Greek</option>
+                                        <option value="tr_TR.UTF-8">Turkish</option>
+                                        <option value="sv_SE.UTF-8">Swedish</option>
+                                        <option value="nb_NO.UTF-8">Norwegian (Bokmal)</option>
+                                        <option value="nn_NO.UTF-8">Norwegian (Nynorsk)</option>
+                                        <option value="da_DK.UTF-8">Danish</option>
+                                        <option value="fi_FI.UTF-8">Finnish</option>
+                                        <!-- Middle East/Asia -->
+                                        <option value="ar_SA.UTF-8">Arabic (Saudi Arabia)</option>
+                                        <option value="fa_IR.UTF-8">Persian (Iran)</option>
+                                        <option value="hi_IN.UTF-8">Hindi (India)</option>
+                                        <option value="th_TH.UTF-8">Thai</option>
+                                        <option value="vi_VN.UTF-8">Vietnamese</option>
+                                        <option value="id_ID.UTF-8">Indonesian</option>
+                                        <option value="ms_MY.UTF-8">Malay</option>
+                                        <option value="he_IL.UTF-8">Hebrew (Israel)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="keyboardSelect">Keyboard <span class="hint-icon" data-tooltip="Keyboard layout for the installed OS">?</span></label>
+                                    <select id="keyboardSelect" class="form-select">
+                                        <!-- English -->
+                                        <option value="us">US English</option>
+                                        <option value="us-acentos">US English (with dead tilde)</option>
+                                        <option value="uk">UK English</option>
+                                        <option value="dvorak">Dvorak (US)</option>
+                                        <option value="dvorak-us">Dvorak (US, international)</option>
+                                        <!-- European -->
+                                        <option value="de">German</option>
+                                        <option value="de-latin1">German (latin1)</option>
+                                        <option value="de-latin1-nodeadkeys">German (latin1, no dead keys)</option>
+                                        <option value="ch">Swiss German</option>
+                                        <option value="fr">French</option>
+                                        <option value="fr-latin9">French (latin9)</option>
+                                        <option value="fr_CA">French (Canada)</option>
+                                        <option value="fr_CH">French (Switzerland)</option>
+                                        <option value="es">Spanish</option>
+                                        <option value="es_cp850">Spanish (cp850)</option>
+                                        <option value="pt">Portuguese</option>
+                                        <option value="it">Italian</option>
+                                        <option value="it_ibm">Italian (IBM)</option>
+                                        <option value="nl">Dutch</option>
+                                        <option value="be">Belgian</option>
+                                        <option value="no">Norwegian</option>
+                                        <option value="dk">Danish</option>
+                                        <option value="se">Swedish</option>
+                                        <option value="fi">Finnish</option>
+                                        <option value="pl">Polish</option>
+                                        <option value="cz">Czech</option>
+                                        <option value="sk">Slovak</option>
+                                        <option value="hu">Hungarian</option>
+                                        <option value="ro">Romanian</option>
+                                        <option value="bg">Bulgarian</option>
+                                        <option value="mk">Macedonian</option>
+                                        <option value="ru">Russian</option>
+                                        <option value="ua">Ukrainian</option>
+                                        <!-- Asian -->
+                                        <option value="jp">Japanese</option>
+                                        <option value="kr">Korean</option>
+                                        <!-- Middle East -->
+                                        <option value="tr">Turkish</option>
+                                        <option value="trq">Turkish (Q)</option>
+                                        <option value="ara">Arabic</option>
+                                        <option value="fa">Persian</option>
+                                        <option value="he">Hebrew</option>
+                                        <option value="th">Thai</option>
+                                        <option value="vn">Vietnamese</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="timezoneSelect">Timezone <span class="hint-icon" data-tooltip="System timezone setting">?</span></label>
+                                    <select id="timezoneSelect" class="form-select">
+                                        <!-- Americas -->
+                                        <option value="America/New_York">America/New_York (Eastern)</option>
+                                        <option value="America/Chicago">America/Chicago (Central)</option>
+                                        <option value="America/Denver">America/Denver (Mountain)</option>
+                                        <option value="America/Los_Angeles">America/Los_Angeles (Pacific)</option>
+                                        <option value="America/Anchorage">America/Anchorage (Alaska)</option>
+                                        <option value="Pacific/Honolulu">Pacific/Honolulu (Hawaii)</option>
+                                        <option value="America/Toronto">America/Toronto (Eastern CA)</option>
+                                        <option value="America/Vancouver">America/Vancouver (Pacific CA)</option>
+                                        <option value="America/Mexico_City">America/Mexico_City</option>
+                                        <option value="America/Sao_Paulo">America/Sao_Paulo (Brazil)</option>
+                                        <option value="America/Buenos_Aires">America/Buenos_Aires</option>
+                                        <!-- Europe -->
+                                        <option value="Europe/London">Europe/London</option>
+                                        <option value="Europe/Paris">Europe/Paris</option>
+                                        <option value="Europe/Berlin">Europe/Berlin</option>
+                                        <option value="Europe/Madrid">Europe/Madrid</option>
+                                        <option value="Europe/Rome">Europe/Rome</option>
+                                        <option value="Europe/Amsterdam">Europe/Amsterdam</option>
+                                        <option value="Europe/Brussels">Europe/Brussels</option>
+                                        <option value="Europe/Zurich">Europe/Zurich</option>
+                                        <option value="Europe/Vienna">Europe/Vienna</option>
+                                        <option value="Europe/Stockholm">Europe/Stockholm</option>
+                                        <option value="Europe/Oslo">Europe/Oslo</option>
+                                        <option value="Europe/Copenhagen">Europe/Copenhagen</option>
+                                        <option value="Europe/Helsinki">Europe/Helsinki</option>
+                                        <option value="Europe/Warsaw">Europe/Warsaw</option>
+                                        <option value="Europe/Prague">Europe/Prague</option>
+                                        <option value="Europe/Budapest">Europe/Budapest</option>
+                                        <option value="Europe/Athens">Europe/Athens</option>
+                                        <option value="Europe/Moscow">Europe/Moscow</option>
+                                        <option value="Europe/Istanbul">Europe/Istanbul</option>
+                                        <!-- Asia -->
+                                        <option value="Asia/Shanghai" selected>Asia/Shanghai (China)</option>
+                                        <option value="Asia/Beijing">Asia/Beijing (China)</option>
+                                        <option value="Asia/Hong_Kong">Asia/Hong_Kong</option>
+                                        <option value="Asia/Taipei">Asia/Taipei</option>
+                                        <option value="Asia/Tokyo">Asia/Tokyo (Japan)</option>
+                                        <option value="Asia/Seoul">Asia/Seoul (Korea)</option>
+                                        <option value="Asia/Singapore">Asia/Singapore</option>
+                                        <option value="Asia/Bangkok">Asia/Bangkok</option>
+                                        <option value="Asia/Jakarta">Asia/Jakarta</option>
+                                        <option value="Asia/Manila">Asia/Manila</option>
+                                        <option value="Asia/Kolkata">Asia/Kolkata (India)</option>
+                                        <option value="Asia/Dubai">Asia/Dubai (UAE)</option>
+                                        <option value="Asia/Riyadh">Asia/Riyadh (Saudi Arabia)</option>
+                                        <option value="Asia/Tehran">Asia/Tehran (Iran)</option>
+                                        <option value="Asia/Ho_Chi_Minh">Asia/Ho_Chi_Minh (Vietnam)</option>
+                                        <!-- Oceania -->
+                                        <option value="Australia/Sydney">Australia/Sydney</option>
+                                        <option value="Australia/Melbourne">Australia/Melbourne</option>
+                                        <option value="Australia/Perth">Australia/Perth</option>
+                                        <option value="Pacific/Auckland">Pacific/Auckland (NZ)</option>
+                                        <!-- Africa -->
+                                        <option value="Africa/Cairo">Africa/Cairo (Egypt)</option>
+                                        <option value="Africa/Johannesburg">Africa/Johannesburg (South Africa)</option>
+                                        <option value="Africa/Lagos">Africa/Lagos (Nigeria)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="no-required" style="margin-bottom: 8px; display: block;">Timezone Options</label>
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <div class="switch-container">
+                                            <label class="switch">
+                                                <input type="checkbox" id="timezoneUTC">
+                                                <span class="slider"></span>
+                                            </label>
+                                            <span class="switch-label">UTC Hardware Clock</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <div class="switch-container">
+                                        <label class="switch">
+                                            <input type="checkbox" id="timezoneNontp">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="switch-label">Disable NTP</span>
+                                    </div>
+                                </div>
+                                <div class="form-group"></div>
+                            </div>
+                        </fieldset>
+
+                        <!-- System Settings -->
+                        <fieldset class="section-fieldset">
+                            <legend>System Settings</legend>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="systemHostname">Hostname <span class="hint-icon" data-tooltip="System hostname for the installed OS">?</span></label>
+                                    <input type="text" id="systemHostname" class="form-input" placeholder="e.g., myserver">
+                                </div>
+                                <div class="form-group"></div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Installation Source -->
+                        <fieldset class="section-fieldset">
+                            <legend>Installation Source</legend>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="installSourceType">Source Type <span class="hint-icon" data-tooltip="Installation source method">?</span></label>
+                                    <select id="installSourceType" class="form-select" onchange="toggleInstallSourceOptions()">
+                                        <option value="cdrom" selected>CDROM</option>
+                                        <option value="nfs">NFS</option>
+                                        <option value="url">URL (HTTP/HTTPS/FTP)</option>
+                                        <option value="harddrive">Hard Drive</option>
+                                    </select>
+                                </div>
+                                <div class="form-group"></div>
+                            </div>
+                            <!-- NFS Options -->
+                            <div id="nfsOptions" class="install-source-options" style="display: none;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="nfsServer">NFS Server <span class="hint-icon" data-tooltip="NFS server hostname or IP">?</span></label>
+                                        <input type="text" id="nfsServer" class="form-input" placeholder="e.g., 192.168.1.100">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="nfsDir">Directory <span class="hint-icon" data-tooltip="NFS share directory path">?</span></label>
+                                        <input type="text" id="nfsDir" class="form-input" placeholder="e.g., /repo/rocky9">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- URL Options -->
+                            <div id="urlOptions" class="install-source-options" style="display: none;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="urlMirror">Mirror URL <span class="hint-icon" data-tooltip="HTTP/HTTPS/FTP mirror URL">?</span></label>
+                                        <input type="text" id="urlMirror" class="form-input" placeholder="e.g., http://dl.rockylinux.org/pub/rocky/9/BaseOS/x86_64/os">
+                                    </div>
+                                    <div class="form-group"></div>
+                                </div>
+                            </div>
+                            <!-- Hard Drive Options -->
+                            <div id="harddriveOptions" class="install-source-options" style="display: none;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="hdPartition">Partition <span class="hint-icon" data-tooltip="Partition containing the ISO (e.g., sda1)">?</span></label>
+                                        <input type="text" id="hdPartition" class="form-input" placeholder="e.g., sda1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="hdDir">Directory <span class="hint-icon" data-tooltip="Directory containing the ISO">?</span></label>
+                                        <input type="text" id="hdDir" class="form-input" placeholder="e.g., /repo">
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Root Password Section -->
+                        <fieldset class="section-fieldset">
+                            <legend>Root Password</legend>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="rootPassword">Password <span class="hint-icon" data-tooltip="Root user password (plain text or SHA512 encrypted)">?</span></label>
+                                    <input type="password" id="rootPassword" class="form-input" placeholder="Enter root password">
+                                </div>
+                                <div class="form-group" style="padding-top: 24px;">
+                                    <div class="switch-container">
+                                        <label class="switch">
+                                            <input type="checkbox" id="rootPasswordCrypted">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="switch-label">Use Encrypted Password</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="switch-grid">
+                                <div class="switch-container">
+                                    <label class="switch">
+                                        <input type="checkbox" id="lockRoot" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="switch-label">Lock root account</span>
+                                </div>
+                                <div class="switch-container">
+                                    <label class="switch">
+                                        <input type="checkbox" id="rootPasswordAllowSsh">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="switch-label">Allow root SSH login</span>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Additional Users -->
+                        <fieldset class="section-fieldset">
+                            <legend>Additional Users</legend>
+                            <div id="usersList"></div>
+                            <button type="button" id="addUserBtn" class="btn btn-sm btn-secondary">Add User</button>
+                        </fieldset>
+
+                        <!-- User Template (hidden, used by JS) -->
+                        <template id="userItemTemplate">
+                            <div class="user-item">
+                                <div class="user-item-header">
+                                    <span class="user-item-title">User</span>
+                                    <button type="button" class="btn btn-sm btn-danger user-delete">Delete</button>
+                                </div>
+                                <div class="form-row three-col">
+                                    <div class="form-group">
+                                        <label>Username <span class="hint-icon" data-tooltip="System username for login">?</span></label>
+                                        <input type="text" class="form-input user-name" placeholder="username">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Password <span class="hint-icon" data-tooltip="User password">?</span></label>
+                                        <input type="password" class="form-input user-password" placeholder="password">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Shell <span class="hint-icon" data-tooltip="User login shell">?</span></label>
+                                        <select class="form-select user-shell">
+                                            <option value="/bin/bash">/bin/bash</option>
+                                            <option value="/bin/sh">/bin/sh</option>
+                                            <option value="/sbin/nologin">/sbin/nologin</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="no-required">GECOS <span class="hint-icon" data-tooltip="Full name, office, etc.">?</span></label>
+                                        <input type="text" class="form-input user-gecos" placeholder="Full Name,Office,etc">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="no-required">Groups <span class="hint-icon" data-tooltip="Comma-separated group names">?</span></label>
+                                        <input type="text" class="form-input user-groups" placeholder="wheel,docker">
+                                    </div>
+                                    <div class="switch-container">
+                                        <label class="switch">
+                                            <input type="checkbox" class="user-lock">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="switch-label">Lock account</span>
+                                    </div>
+                                    <div class="switch-container">
+                                        <label class="switch">
+                                            <input type="checkbox" class="user-plaintext">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="switch-label">Plaintext password</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                    </div>
+
+                    <div class="page-actions" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+                        <div class="page-actions-row">
+                            <button type="button" class="btn btn-secondary" onclick="loadDefaultConfig()">Load Default Config</button>
+                            <button type="button" class="btn btn-secondary" onclick="validateConfig()">Validate Config</button>
+                            <button type="button" class="btn btn-success" onclick="previewKickstart()" style="background: linear-gradient(135deg, #5cb85c 0%, #4cae4c 100%) !important; color: white !important;">Preview Config</button>
+                        </div>
+                        <div id="configActionStatus" class="action-status" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <!-- Storage Configuration -->
+                <div class="tab-content" id="storage">
+                    <fieldset class="form-fieldset storage-bootloader-fieldset">
+                        <legend>Boot Loader</legend>
+                        <div class="form-row storage-bootloader-row">
+                            <div class="form-group">
+                                <label for="bootloaderLocation">Location <span class="hint-icon" data-tooltip="Boot loader installation location">?</span></label>
+                                <select id="bootloaderLocation" class="form-select">
+                                    <option value="mbr">Master Boot Record (MBR)</option>
+                                    <option value="partition">Partition</option>
+                                    <option value="none">None</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="bootloaderBootDrive" class="no-required">Boot Drive <span class="hint-icon" data-tooltip="Primary disk for boot loader (e.g., vda, sda)">?</span></label>
+                                <input type="text" id="bootloaderBootDrive" class="form-input" placeholder="vda or sda">
+                            </div>
+                        </div>
+                        <div class="form-row storage-bootloader-row storage-bootloader-row-secondary">
+                            <div class="form-group">
+                                <label for="bootloaderAppend" class="no-required">Kernel Parameters <span class="hint-icon" data-tooltip="Additional kernel boot parameters">?</span></label>
+                                <input type="text" id="bootloaderAppend" class="form-input" placeholder="crashkernel=auto">
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Partition Mode Selection -->
+                    <fieldset class="form-fieldset storage-partition-mode-fieldset">
+                        <legend>Partition Mode</legend>
+                        <div class="form-row partition-mode-row">
+                            <label class="radio-label partition-mode-option">
+                                <input type="radio" name="partitionMode" value="auto" checked onchange="togglePartitionMode()">
+                                <span>Automatic (autopart)</span>
+                            </label>
+                            <label class="radio-label partition-mode-option">
+                                <input type="radio" name="partitionMode" value="manual" onchange="togglePartitionMode()">
+                                <span>Manual Partitioning</span>
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <!-- Autopart Section -->
+                    <div class="storage-config-card" id="autopartSection">
+                        <div class="storage-header" onclick="this.nextElementSibling.classList.toggle('collapsed')">
+                            <div class="storage-header-main">
+                                <span class="storage-type">Disk Configuration</span>
+                            </div>
+                            <div class="storage-header-actions"></div>
+                        </div>
+                        <div class="storage-body">
+                            <div class="form-group">
+                                <label for="autopartType">Partition Type <span class="hint-icon" data-tooltip="Automatic partitioning scheme type">?</span></label>
+                                <select id="autopartType" class="form-select">
+                                    <option value="lvm">LVM (Default)</option>
+                                    <option value="plain">Plain (No LVM)</option>
+                                    <option value="thinp">LVM Thin Provisioning</option>
+                                    <option value="btrfs">Btrfs</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manual Partition Section -->
+                    <div id="manualPartitionSection" style="display: none;">
+                        <div class="storage-config-card" id="manualDiskOptionsCard">
+                            <div class="storage-header" onclick="this.nextElementSibling.classList.toggle('collapsed')">
+                                <div class="storage-header-main">
+                                    <span class="storage-type">Disk Options</span>
+                                </div>
+                                <div class="storage-header-actions"></div>
+                            </div>
+                            <div class="storage-body">
+                                <div class="storage-switch-grid">
+                                    <div class="storage-switch-item">
+                                        <label class="switch">
+                                            <input type="checkbox" id="zerombr">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="switch-label">Initialize disk label (zerombr) <span class="hint-icon" data-tooltip="Required for non-MBR disks">?</span></span>
+                                    </div>
+                                    <div class="storage-switch-item">
+                                        <label class="switch">
+                                            <input type="checkbox" id="clearpartAll" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="switch-label">Clear all partitions <span class="hint-icon" data-tooltip="Remove all existing partitions before installing">?</span></span>
+                                    </div>
+                                    <div class="storage-switch-item">
+                                        <label class="switch">
+                                            <input type="checkbox" id="initLabel">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="switch-label">Initialize disk label (--initlabel) <span class="hint-icon" data-tooltip="Force disk label initialization">?</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <h3>Storage Configurations</h3>
+                            <p class="form-help">Use the storage configuration cards below. Each card has its own Disk Type field and switching the type only affects that card template.</p>
+
+                            <div id="storageConfigs" class="storage-item-list">
+                                <!-- Storage configuration cards will be dynamically added here -->
+                            </div>
+
+                            <button type="button" id="addStorageItemBtn" class="add-item-btn">Add Storage Configuration</button>
+                        </div>
+                    </div>
+
+                    <div class="page-actions" id="storagePageActions" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+                        <div class="page-actions-row">
+                            <button type="button" class="btn btn-secondary" onclick="loadDefaultConfig()">Load Default Config</button>
+                            <button type="button" class="btn btn-secondary" onclick="validateConfig()">Validate Config</button>
+                            <button type="button" class="btn btn-success" onclick="previewKickstart()" style="background: linear-gradient(135deg, #5cb85c 0%, #4cae4c 100%) !important; color: white !important;">Preview Config</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Network Configuration -->
+                <div class="tab-content" id="network">
+                    <div id="networkDevices">
+                        <!-- Default Network Device 1 - will be cloned/managed by NetworkManager -->
+                        <div class="network-device" id="defaultNetworkDevice" style="display: none;">
+                            <div class="device-header">
+                                <span class="device-type">Network Device 1</span>
+                                <button type="button" class="remove-btn device-delete">Remove</button>
+                            </div>
+                            <div class="device-body">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Device <span class="hint-icon" data-tooltip="Network device name (eth0, link, or MAC address)">?</span></label>
+                                        <input type="text" class="form-input net-device" value="eth0" placeholder="eth0 or link or MAC" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="optional">Boot Protocol <span class="hint-icon" data-tooltip="How to obtain IP address">?</span></label>
+                                        <select class="form-select net-bootproto">
+                                            <option value="dhcp" selected>DHCP</option>
+                                            <option value="static">Static</option>
+                                            <option value="bootp">BOOTP</option>
+                                            <option value="query">Query</option>
+                                            <option value="ibft">iBFT</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="static-options hidden">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>IP Address <span class="hint-icon" data-tooltip="Static IP address">?</span></label>
+                                            <input type="text" class="form-input net-ip" value="" placeholder="192.168.1.100">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="optional">Netmask <span class="hint-icon" data-tooltip="Subnet mask">?</span></label>
+                                            <input type="text" class="form-input net-netmask" value="" placeholder="255.255.255.0">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="optional">Gateway (IPv4) <span class="hint-icon" data-tooltip="Default gateway IP">?</span></label>
+                                            <input type="text" class="form-input net-gateway" value="" placeholder="192.168.1.1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="optional">MTU <span class="hint-icon" data-tooltip="Maximum transmission unit size">?</span></label>
+                                            <input type="text" class="form-input net-mtu" value="" placeholder="1500">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex: 2;">
+                                        <label class="optional">DNS Nameservers <span class="hint-icon" data-tooltip="Comma-separated DNS servers">?</span></label>
+                                        <input type="text" class="form-input net-nameserver" value="" placeholder="8.8.8.8,8.8.4.4">
+                                    </div>
+                                </div>
+                                <details class="net-advanced">
+                                    <summary>Advanced Options</summary>
+                                    <div class="net-advanced-content">
+                                        <fieldset class="form-fieldset">
+                                            <legend>IPv6</legend>
+                                            <div class="form-group">
+                                                <label class="optional">IPv6 Address <span class="hint-icon" data-tooltip="IPv6 address (auto for SLAAC)">?</span></label>
+                                                <input type="text" class="form-input net-ipv6" value="" placeholder="auto or fe80::1/64">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="optional">IPv6 Gateway <span class="hint-icon" data-tooltip="IPv6 default gateway">?</span></label>
+                                                <input type="text" class="form-input net-ipv6gateway" value="" placeholder="fe80::1">
+                                            </div>
+                                            <div class="switch-grid">
+                                                <div class="switch-item">
+                                                    <label class="switch">
+                                                        <input type="checkbox" class="net-noipv4">
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                    <span class="switch-label">Disable IPv4</span>
+                                                </div>
+                                                <div class="switch-item">
+                                                    <label class="switch">
+                                                        <input type="checkbox" class="net-noipv6">
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                    <span class="switch-label">Disable IPv6</span>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="optional">IPv4 DNS Search <span class="hint-icon" data-tooltip="DNS search domain list">?</span></label>
+                                                <input type="text" class="form-input net-ipv4dnssearch" value="" placeholder="example.com">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="optional">IPv6 DNS Search <span class="hint-icon" data-tooltip="IPv6 DNS search domain list">?</span></label>
+                                                <input type="text" class="form-input net-ipv6dnssearch" value="" placeholder="example.com">
+                                            </div>
+                                        </fieldset>
+                                        <fieldset class="form-fieldset">
+                                            <legend>Activation</legend>
+                                            <div class="switch-grid">
+                                                <div class="switch-item">
+                                                    <label class="switch">
+                                                        <input type="checkbox" class="net-onboot" checked>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                    <span class="switch-label">On Boot</span>
+                                                </div>
+                                                <div class="switch-item">
+                                                    <label class="switch">
+                                                        <input type="checkbox" class="net-activate">
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                    <span class="switch-label">Activate</span>
+                                                </div>
+                                                <div class="switch-item">
+                                                    <label class="switch">
+                                                        <input type="checkbox" class="net-nodefroute">
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                    <span class="switch-label">No Default Route</span>
+                                                </div>
+                                                <div class="switch-item">
+                                                    <label class="switch">
+                                                        <input type="checkbox" class="net-nodns">
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                    <span class="switch-label">No DNS</span>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                        <fieldset class="form-fieldset">
+                                            <legend>VLAN / Interface</legend>
+                                            <div class="form-group">
+                                                <label class="optional">Interface Name <span class="hint-icon" data-tooltip="Custom interface/vlan name">?</span></label>
+                                                <input type="text" class="form-input net-interfacename" value="" placeholder="vlan100">
+                                            </div>
+                                        </fieldset>
+                                        <fieldset class="form-fieldset">
+                                            <legend>Ethtool</legend>
+                                            <div class="form-group">
+                                                <label class="optional">Ethtool Settings <span class="hint-icon" data-tooltip="Network driver settings">?</span></label>
+                                                <input type="text" class="form-input net-ethtool" value="" placeholder="speed 1000 duplex full">
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </details>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" id="addNetworkBtn" class="btn btn-sm btn-secondary">Add Network Device</button>
+
+                    <div class="page-actions" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+                        <div class="page-actions-row">
+                            <button type="button" class="btn btn-secondary" onclick="loadDefaultConfig()">Load Default Config</button>
+                            <button type="button" class="btn btn-secondary" onclick="validateConfig()">Validate Config</button>
+                            <button type="button" class="btn btn-success" onclick="previewKickstart()" style="background: linear-gradient(135deg, #5cb85c 0%, #4cae4c 100%) !important; color: white !important;">Preview Config</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Packages -->
+                <div class="tab-content" id="packages">
+                    <!-- Software Repositories -->
+                    <fieldset class="form-fieldset packages-repos-fieldset">
+                        <legend>Software Repositories <span class="hint-icon" data-tooltip="Configure additional yum/dnf repositories for package installation">?</span></legend>
+                        <div class="form-group">
+                            <div id="repoList" class="repo-list">
+                                <!-- Repo cards will be dynamically added here -->
+                            </div>
+                            <button type="button" id="addRepoBtn" class="add-item-btn">Add Repository</button>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="form-fieldset package-groups-fieldset">
+                        <legend>Package Groups <span class="hint-icon" data-tooltip="Select package groups to install (groups prefixed with @^)">?</span></legend>
+                        <div class="form-group">
+                            <div class="package-group-switches switch-list switch-list-horizontal">
+                                <div class="switch-container">
+                                    <label class="switch">
+                                        <input type="checkbox" class="package-group" value="@^minimal-environment">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="switch-label">Minimal Environment <span class="hint-icon" data-tooltip="Minimal installation environment">?</span></span>
+                                </div>
+                                <div class="switch-container">
+                                    <label class="switch">
+                                        <input type="checkbox" class="package-group" value="@development">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="switch-label">Development <span class="hint-icon" data-tooltip="Development tools and utilities">?</span></span>
+                                </div>
+                                <div class="switch-container">
+                                    <label class="switch">
+                                        <input type="checkbox" class="package-group" value="@network-server">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="switch-label">Network Server <span class="hint-icon" data-tooltip="Network server packages">?</span></span>
+                                </div>
+                                <div class="switch-container">
+                                    <label class="switch">
+                                        <input type="checkbox" class="package-group" value="@standard">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="switch-label">Standard <span class="hint-icon" data-tooltip="Standard package group">?</span></span>
+                                </div>
+                                <div class="switch-container">
+                                    <label class="switch">
+                                        <input type="checkbox" class="package-group" value="@system-tools">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="switch-label">System Tools <span class="hint-icon" data-tooltip="System administration tools">?</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <div class="package-list-section">
+                        <h3>Packages (one per line) <span class="hint-icon" data-tooltip="Enter individual package names to install, one per line">?</span></h3>
+                        <textarea id="packagesList" class="code-editor" placeholder="vim
+wget
+curl
+git"></textarea>
+                    </div>
+
+                    <!-- Additional Packages (handled by build system) -->
+                    <div class="form-group">
+                        <label class="optional">Additional Packages <span class="hint-icon" data-tooltip="One package name per line. These packages will be downloaded and bundled into the ISO by the build system.">?</span></label>
+                        <textarea id="additionalPackages" rows="10" class="code-editor" placeholder="Example:
+curl
+wget
+vim
+git
+htop"></textarea>
+                        <small style="color:#6c757d;margin-top:4px;display:block;">Enter one package name per line. These are extra packages handled by the ISO build system (separate from autoinstall packages).</small>
+                    </div>
+
+                    <div class="page-actions" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+                        <div class="page-actions-row">
+                            <button type="button" class="btn btn-secondary" onclick="loadDefaultConfig()">Load Default Config</button>
+                            <button type="button" class="btn btn-secondary" onclick="validateConfig()">Validate Config</button>
+                            <button type="button" class="btn btn-success" onclick="previewKickstart()" style="background: linear-gradient(135deg, #5cb85c 0%, #4cae4c 100%) !important; color: white !important;">Preview Config</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Embedded Files -->
+                <div class="tab-content" id="embedded">
+                    <div class="embedded-files-container">
+                        <div class="embedded-layout">
+                            <!-- Left: Directory List Panel -->
+                            <div class="embedded-dir-panel">
+                                <div class="embedded-panel-header">
+                                    <span class="embedded-panel-title">Folders</span>
+                                    <button type="button" class="btn" onclick="EmbeddedFilesManager.showCreateDirModal()">New Folder</button>
+                                </div>
+                                <div id="embeddedDirList" class="embedded-dir-list"></div>
+                            </div>
+                            <!-- Right: File Browser Panel -->
+                            <div class="embedded-browser-panel">
+                                <!-- Browser toolbar -->
+                                <div class="embedded-browser-toolbar">
+                                    <div class="embedded-browser-toolbar-left">
+                                        <span id="embeddedCurrentPath" class="embedded-current-path">/</span>
+                                    </div>
+                                    <div class="embedded-browser-toolbar-right">
+                                        <button type="button" class="btn btn-sm" onclick="EmbeddedFilesManager.refreshCurrentDir()">Refresh</button>
+                                        <button type="button" class="btn btn-sm" onclick="EmbeddedFilesManager.createFileInDir()">New File</button>
+                                        <div class="embedded-upload-dropdown">
+                                            <button type="button" class="btn btn-sm dropdown-toggle" id="uploadDropdownBtn" onclick="EmbeddedFilesManager.toggleUploadMenu()">Upload <span class="dropdown-arrow">&#9662;</span></button>
+                                            <div class="embedded-upload-menu" id="uploadDropdownMenu">
+                                                <div onclick="EmbeddedFilesManager.triggerUpload()">Upload File</div>
+                                                <div onclick="EmbeddedFilesManager.triggerUploadDir()">Upload Folder</div>
+                                                <div onclick="EmbeddedFilesManager.triggerExtractArchive()">Extract Archive (.zip/.tar.gz)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- File table -->
+                                <div id="embeddedFileBrowser" class="embedded-file-browser"></div>
+                            </div>
+                        </div>
+                        <!-- Actions panel (shown when file selected) -->
+                        <div class="embedded-actions-panel" id="embeddedActionsPanel" style="display:none;">
+                            <div class="embedded-actions-header">
+                                <span id="embeddedSelectedFileName"></span>
+                                <button type="button" class="modal-close" onclick="EmbeddedFilesManager.clearSelection()">&times;</button>
+                            </div>
+                            <div class="embedded-actions-body">
+                                <div class="embedded-actions-grid" id="embeddedActionsGrid"></div>
+                                <div class="embedded-file-preview" id="embeddedFilePreview"></div>
+                            </div>
+                        </div>
+                        <div class="page-actions" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+                            <div class="page-actions-row">
+                                <button type="button" class="btn btn-secondary" onclick="loadDefaultConfig()">Load Default Config</button>
+                                <button type="button" class="btn btn-secondary" onclick="validateConfig()">Validate Config</button>
+                                <button type="button" class="btn btn-success" onclick="previewKickstart()" style="background: linear-gradient(135deg, #5cb85c 0%, #4cae4c 100%) !important; color: white !important;">Preview Config</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scripts -->
+                <div class="tab-content" id="scripts">
+                    <div class="scripts-section">
+                        <h3>Pre-installation Script (%pre) <span class="hint-icon" data-tooltip="Script runs before installation begins">?</span></h3>
+                        <textarea id="preScript" class="code-editor" placeholder="#!/bin/bash
+# Pre-installation script runs before the installation begins
+echo 'Pre-installation script executed'"></textarea>
+                    </div>
+
+                    <div class="scripts-section">
+                        <h3>Post-installation Script (%post --nochroot) <span class="hint-icon" data-tooltip="Script runs after installation, outside chroot">?</span></h3>
+                        <textarea id="postNoChrootScript" class="code-editor" placeholder="#!/bin/bash
+# Post-installation script runs outside chroot after package installation
+echo 'Post-installation nochroot script executed'"></textarea>
+                    </div>
+
+                    <div class="scripts-section">
+                        <h3>Post-installation Script (%post) <span class="hint-icon" data-tooltip="Script runs after installation completes">?</span></h3>
+                        <textarea id="postScript" class="code-editor" placeholder="#!/bin/bash
+# Post-installation script runs after the installation is complete
+echo 'Post-installation script executed'"></textarea>
+                    </div>
+
+                    <div class="scripts-section">
+                        <h3>Anaconda Section (%anaconda) <span class="hint-icon" data-tooltip="Anaconda configuration section">?</span></h3>
+                        <textarea id="anacondaSection" class="code-editor" placeholder="pwpolicy root --minlen=8 --minquality=1 --notstrict --nochanges --notempty
+pwpolicy user --minlen=8 --minquality=1 --notstrict --nochanges --emptyok"></textarea>
+                    </div>
+
+                    <div class="scripts-section">
+                        <h3>Kdump (Kernel Crash Dump) <span class="hint-icon" data-tooltip="Configure kernel crash dump (kdump) for system diagnostics">?</span></h3>
+                        <div class="kdump-options">
+                            <div class="switch-container" style="margin-bottom: 12px;">
+                                <label class="switch">
+                                    <input type="checkbox" id="kdumpEnabled">
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="switch-label">Enable kdump</span>
+                            </div>
+                            <div class="kdump-settings" id="kdumpSettings" style="display: none;">
+                                <label for="kdumpReserve" class="sub-label">Memory Reserve:</label>
+                                <select id="kdumpReserve" class="form-select">
+                                    <option value="auto">Auto (Recommended)</option>
+                                    <option value="128">128 MB</option>
+                                    <option value="256">256 MB</option>
+                                    <option value="384">384 MB</option>
+                                    <option value="512">512 MB</option>
+                                    <option value="768">768 MB</option>
+                                    <option value="1024">1024 MB (1 GB)</option>
+                                    <option value="2048">2048 MB (2 GB)</option>
+                                    <option value="4096">4096 MB (4 GB)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page-actions" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+                        <div class="page-actions-row">
+                            <button type="button" class="btn btn-secondary" onclick="loadDefaultConfig()">Load Default Config</button>
+                            <button type="button" class="btn btn-secondary" onclick="validateConfig()">Validate Config</button>
+                            <button type="button" class="btn btn-success" onclick="previewKickstart()" style="background: linear-gradient(135deg, #5cb85c 0%, #4cae4c 100%) !important; color: white !important;">Preview Config</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Configuration -->
+                <div class="tab-content" id="advanced">
+                    <div class="form-grid">
+                        <fieldset class="form-fieldset">
+                            <legend>Installation Mode</legend>
+                            <div class="form-row three-col">
+                                <div class="form-group">
+                                    <label for="installMode">Installation Type <span class="hint-icon" data-tooltip="Installation mode (graphical/text/cmdline)">?</span></label>
+                                    <select id="installMode" class="form-select">
+                                        <option value="graphical">Graphical</option>
+                                        <option value="text">Text</option>
+                                        <option value="cmdline">Command Line</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="firstBootSelect">First Boot <span class="hint-icon" data-tooltip="Initial Setup agent behavior on first boot">?</span></label>
+                                    <select id="firstBootSelect" class="form-select">
+                                        <option value="enabled">Enable Initial Setup</option>
+                                        <option value="disabled" selected>Disable Initial Setup</option>
+                                        <option value="reconfig">Reconfig Mode</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="no-required">Skip X</label>
+                                    <div class="switch-container">
+                                        <label class="switch">
+                                            <input type="checkbox" id="skipX">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="switch-label">Skip X Configuration</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="form-fieldset">
+                            <legend>Firewall</legend>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="firewallPorts" class="no-required">Custom Ports <span class="hint-icon" data-tooltip="Additional firewall ports (format: port:protocol)">?</span></label>
+                                    <input type="text" id="firewallPorts" class="form-input" placeholder="imap:tcp,1234:ucp,47">
+                                </div>
+                                <div class="form-group">
+                                    <label class="no-required">Enable Firewall</label>
+                                    <div class="switch-container">
+                                        <label class="switch">
+                                            <input type="checkbox" id="firewallEnabled" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="switch-label">Enable firewall</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label>Services to Allow</label>
+                                    <div class="firewall-services switch-list">
+                                        <div class="switch-container">
+                                            <label class="switch">
+                                                <input type="checkbox" class="firewall-service" value="ssh" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                            <span class="switch-label">SSH</span>
+                                        </div>
+                                        <div class="switch-container">
+                                            <label class="switch">
+                                                <input type="checkbox" class="firewall-service" value="http">
+                                                <span class="slider"></span>
+                                            </label>
+                                            <span class="switch-label">HTTP</span>
+                                        </div>
+                                        <div class="switch-container">
+                                            <label class="switch">
+                                                <input type="checkbox" class="firewall-service" value="https">
+                                                <span class="slider"></span>
+                                            </label>
+                                            <span class="switch-label">HTTPS</span>
+                                        </div>
+                                        <div class="switch-container">
+                                            <label class="switch">
+                                                <input type="checkbox" class="firewall-service" value="cockpit">
+                                                <span class="slider"></span>
+                                            </label>
+                                            <span class="switch-label">Cockpit</span>
+                                        </div>
+                                        <div class="switch-container">
+                                            <label class="switch">
+                                                <input type="checkbox" class="firewall-service" value="ftp">
+                                                <span class="slider"></span>
+                                            </label>
+                                            <span class="switch-label">FTP</span>
+                                        </div>
+                                        <div class="switch-container">
+                                            <label class="switch">
+                                                <input type="checkbox" class="firewall-service" value="smtp">
+                                                <span class="slider"></span>
+                                            </label>
+                                            <span class="switch-label">SMTP</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="form-fieldset">
+                            <legend>Power Action</legend>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="powerAction">After Installation <span class="hint-icon" data-tooltip="System action after installation completes">?</span></label>
+                                    <select id="powerAction" class="form-select">
+                                        <option value="reboot">Reboot</option>
+                                        <option value="poweroff">Power Off</option>
+                                        <option value="shutdown">Shutdown</option>
+                                        <option value="halt" selected>Halt</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="no-required">EULA</label>
+                                    <div class="switch-container">
+                                        <label class="switch">
+                                            <input type="checkbox" id="eulaAgreed">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="switch-label">Accept EULA</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="form-fieldset">
+                            <legend>SELinux</legend>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="selinuxMode">Mode <span class="hint-icon" data-tooltip="Security-Enhanced Linux mode">?</span></label>
+                                    <select id="selinuxMode" class="form-select">
+                                        <option value="enforcing">Enforcing</option>
+                                        <option value="permissive">Permissive</option>
+                                        <option value="disabled">Disabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="form-fieldset">
+                            <legend>Services</legend>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="servicesEnabled" class="optional">Enable Services <span class="hint-icon" data-tooltip="Services to enable on boot">?</span></label>
+                                    <input type="text" id="servicesEnabled" class="form-input" placeholder="sshd,NetworkManager">
+                                </div>
+                                <div class="form-group">
+                                    <label for="servicesDisabled" class="optional">Disable Services <span class="hint-icon" data-tooltip="Services to disable on boot">?</span></label>
+                                    <input type="text" id="servicesDisabled" class="form-input" placeholder="chronyd,postfix">
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="page-actions" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
+                        <div class="page-actions-row">
+                            <button type="button" class="btn btn-secondary" onclick="loadDefaultConfig()">Load Default Config</button>
+                            <button type="button" class="btn btn-secondary" onclick="validateConfig()">Validate Config</button>
+                            <button type="button" class="btn btn-success" onclick="previewKickstart()" style="background: linear-gradient(135deg, #5cb85c 0%, #4cae4c 100%) !important; color: white !important;">Preview Config</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page: Configuration Preview -->
+            <div class="content-page" data-page="preview">
+                <div class="page-header">
+                    <h2>Configuration Preview</h2>
+                </div>
+                <div class="full-preview-container">
+                    <div id="configPreview" class="result" style="display: none;"></div>
+                </div>
+                <div class="page-actions" id="kickstartActions" style="margin-top: 20px; display: none;">
+                    <div class="page-actions-row">
+                        <button type="button" class="btn btn-primary" onclick="downloadKickstartConfig()">Generate Kickstart</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page: ISO Builder -->
+            <div class="content-page" data-page="iso">
+                <div class="page-header">
+                    <h2>Generate ISO Image</h2>
+                </div>
+
+                <!-- Source ISO Selection -->
+                <div class="form-group">
+                    <label>Source ISO Selection <span class="hint-icon" data-tooltip="Choose local ISO or download from mirror">?</span></label>
+                    <div class="source-selection">
+                        <label class="radio-label optional">
+                            <input type="radio" name="isoSourceType" value="local" checked onchange="toggleISOSourceType()">
+                            <span>Use Local ISO File</span>
+                        </label>
+                        <label class="radio-label optional">
+                            <input type="radio" name="isoSourceType" value="download" onchange="toggleISOSourceType()">
+                            <span>Download from Internet</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Install Media Type -->
+                <div class="form-group">
+                    <label>Install Media Type <span class="hint-icon" data-tooltip="CDROM: boot from optical media (inst.ks=cdrom:/ks.cfg). HDD: boot from disk/USB (inst.ks=hd:LABEL=...:/ks.cfg)">?</span></label>
+                    <div class="source-selection">
+                        <label class="radio-label optional">
+                            <input type="radio" name="installMediaType" value="cdrom" checked onchange="toggleInstallMediaType()">
+                            <span>CDROM (Optical Media)</span>
+                        </label>
+                        <label class="radio-label optional">
+                            <input type="radio" name="installMediaType" value="harddrive" onchange="toggleInstallMediaType()">
+                            <span>HDD / USB (Hard Drive)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Advanced Options -->
+                <div class="form-group">
+                    <h3>Advanced Options</h3>
+                    <div class="form-row" style="margin-top: 15px;">
+                        <div class="form-group">
+                            <label class="optional">Serial Console</label>
+                            <div class="switch-container">
+                                <label class="switch">
+                                    <input type="checkbox" id="serialConsoleCheckbox">
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="switch-label">Enable serial console output</span>
+                            </div>
+                            <div class="serial-options" id="serialOptions" style="display: none; margin-top: 12px;">
+                                <label for="baudRateSelect" class="sub-label">Baud Rate</label>
+                                <select id="baudRateSelect" class="form-select">
+                                    <option value="9600">9600</option>
+                                    <option value="19200">19200</option>
+                                    <option value="38400">38400</option>
+                                    <option value="57600">57600</option>
+                                    <option value="115200" selected>115200 (Default)</option>
+                                </select>
+                            </div>
+                            <small class="form-help">Useful for headless servers and BMC/IPMI remote consoles.</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="optional">Network Interface Naming</label>
+                            <div class="switch-container">
+                                <label class="switch">
+                                    <input type="checkbox" id="ethNamingCheckbox">
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="switch-label">Use traditional eth* interface names (biosdevname=0 net.ifnames=0)</span>
+                            </div>
+                            <small class="form-help">When enabled, NICs are named eth0/eth1 instead of eno1/ens3.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Local ISO File Upload -->
+                <div id="localISOSection" class="form-group">
+                    <label class="optional">Upload Local ISO File <span class="hint-icon" data-tooltip="Select a local ISO file from your computer">?</span></label>
+                    <div class="file-upload-container">
+                        <input type="file" id="isoFileInput" accept=".iso" onchange="handleISOFileSelect(this)">
+                        <div class="file-info" id="isoFileInfo" style="display: none;">
+                            <span class="file-name" id="isoFileName"></span>
+                            <span class="file-size" id="isoFileSize"></span>
+                            <button type="button" class="remove-file-btn" onclick="removeSelectedISO()">&#215;</button>
+                        </div>
+                    </div>
+                    <div id="uploadProgressContainer" style="display:none; margin-top:10px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div class="progress-bar" style="flex:1;">
+                                <div class="progress-fill" id="uploadProgressFill" style="width:0%;"></div>
+                            </div>
+                            <span id="uploadProgressText" style="min-width:48px; text-align:right; color:#495057;">0%</span>
+                        </div>
+                        <small id="uploadStatusText" class="form-help">Uploading...</small>
+                    </div>
+                    <input type="hidden" id="sourceISO" value="">
+                </div>
+
+                <!-- Download ISO Section -->
+                <div id="downloadISOSection" class="form-group" style="display: none;">
+                    <label class="optional">Distribution <span class="hint-icon" data-tooltip="Select distribution to download ISO">?</span></label>
+                    <select id="distroDownloadSelect" class="form-select">
+                        <option value="rocky-8">Rocky Linux 8</option>
+                        <option value="rocky-9">Rocky Linux 9</option>
+                        <option value="rocky-10">Rocky Linux 10</option>
+                    </select>
+                </div>
+
+                <!-- Destination ISO Configuration -->
+                <div class="form-group">
+                    <label>Destination ISO Name <span class="hint-icon" data-tooltip="Filename for the generated ISO">?</span></label>
+                    <input type="text" id="destinationISO" value="custom-kickstart.iso" placeholder="custom-kickstart.iso" required>
+                </div>
+
+                <!-- Kickstart Configuration -->
+                <div class="form-group">
+                    <label>Kickstart Configuration <span class="hint-icon" data-tooltip="Generated kickstart configuration">?</span></label>
+                    <textarea id="ksConfigContent" rows="6" placeholder="Kickstart configuration content..." required></textarea>
+                </div>
+
+                <!-- Build Actions -->
+                <div class="page-actions">
+                    <div class="page-actions-row">
+                        <button type="button" id="resetBuildBtn" class="btn btn-secondary" onclick="resetBuildConfig()">Reset Build Config</button>
+                        <button type="button" id="generateBtn" class="btn btn-primary" onclick="window.configManager.generateISO()">Generate ISO Image</button>
+                    </div>
+                </div>
+
+                <!-- ISO Status -->
+                <div id="isoStatus" class="status" style="display: none;"></div>
+
+                <!-- Build Progress -->
+                <div id="buildProgress" class="build-progress" style="display: none;">
+                    <h3>Build Progress</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div id="progressText" class="progress-text" style="margin-top: 8px; color: #666; font-size: 14px;"></div>
+                    <div class="build-steps">
+                        <div class="step" data-step="prepare">Preparing installation environment</div>
+                        <div class="step" data-step="source">Using local ISO</div>
+                        <div class="step" data-step="kickstart">Generating kickstart configuration</div>
+                        <div class="step" data-step="boot">Patching boot configuration</div>
+                        <div class="step" data-step="packages">Downloading additional packages</div>
+                        <div class="step" data-step="repackage">Repackaging ISO image</div>
+                        <div class="step" data-step="complete">Build completed</div>
+                    </div>
+                </div>
+
+                <!-- Build Logs -->
+                <div id="buildLogs" class="build-logs" style="display: none;">
+                    <h3>Build Logs</h3>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+
+                <!-- Download Button -->
+                <div id="downloadSection" class="download-section" style="display: none;">
+                    <h3>Build Complete!</h3>
+                    <p>Your custom ISO has been generated successfully.</p>
+                    <button type="button" id="downloadBtn" class="btn btn-success" onclick="window.configManager.downloadISO()">
+                        Download ISO
+                    </button>
+                </div>
+            </div>
+
+            <!-- Page: Templates Management -->
+            <div class="content-page" data-page="templates">
+                <div class="page-header">
+                    <h2>Templates</h2>
+                </div>
+                <div class="templates-container">
+                    <div class="templates-layout">
+                        <!-- Left: Template List -->
+                        <div class="templates-list-wrapper">
+                            <div class="templates-list-panel">
+                                <!-- Preset Templates -->
+                                <div class="template-section">
+                                    <h3 class="template-section-title">System Template</h3>
+                                    <div id="presetTemplatesList" class="template-items">
+                                        <!-- Loaded dynamically -->
+                                    </div>
+                                </div>
+
+                                <!-- User Templates -->
+                                <div class="template-section">
+                                    <h3 class="template-section-title">Custom Template</h3>
+                                    <div id="userTemplatesList" class="template-items">
+                                        <!-- Loaded dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Import Button -->
+                            <div class="templates-import-external">
+                                <button type="button" class="btn" onclick="window.templatesManager && window.templatesManager.showImportModal()">
+                                    Import
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Right: Template Preview -->
+                        <div class="templates-preview-panel">
+                            <div class="preview-header">
+                                <h3 class="preview-title" id="previewTitle">Template Preview</h3>
+                                <div class="preview-actions" id="previewActionsNormal">
+                                    <button type="button" id="applyTemplateBtn" onclick="window.templatesManager && window.templatesManager.applySelectedTemplate()" disabled>
+                                        Apply
+                                    </button>
+                                    <button type="button" id="exportTemplateBtn" onclick="window.templatesManager?.exportSelectedTemplate()" disabled>
+                                        Export
+                                    </button>
+                                    <button type="button" id="copyTemplateBtn" onclick="window.templatesManager && window.templatesManager.copySelectedTemplate()" disabled>
+                                        Copy
+                                    </button>
+                                    <button type="button" id="editTemplateBtn" onclick="window.templatesManager && window.templatesManager.editSelectedTemplate()" disabled>
+                                        Edit
+                                    </button>
+                                    <button type="button" class="danger" id="deleteTemplateBtn" onclick="window.templatesManager && window.templatesManager.deleteSelectedTemplate()" disabled>
+                                        Delete
+                                    </button>
+                                </div>
+                                <div class="preview-actions" id="previewActionsEdit" style="display: none;">
+                                    <button type="button" id="cancelEditBtn" onclick="window.templatesManager && window.templatesManager.cancelEdit()">
+                                        Cancel
+                                    </button>
+                                    <button type="button" id="saveEditBtn" onclick="window.templatesManager && window.templatesManager.saveEdit()">
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="templatePreview" class="preview-content">
+                                <div class="preview-placeholder">
+                                    <span class="placeholder-icon">&#128194;</span>
+                                    <p>Select a template to preview</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Template Modal -->
+                <div id="saveTemplateModal" class="modal">
+                    <div class="modal-content modal-sm">
+                        <div class="modal-header">
+                            <h3>Save as Template</h3>
+                            <button type="button" class="modal-close" onclick="window.templatesManager && window.templatesManager.closeSaveModal()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Template Name</label>
+                                <input type="text" id="newTemplateName" placeholder="e.g., my-server-config" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="window.templatesManager && window.templatesManager.closeSaveModal()">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="window.templatesManager && window.templatesManager.confirmSaveTemplate()">Save Template</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Import Template Modal -->
+                <div id="importTemplateModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Import Template</h3>
+                            <button type="button" class="modal-close" onclick="window.templatesManager && window.templatesManager.closeImportModal()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="import-mode-tabs">
+                                <button type="button" id="importModePaste" class="active" onclick="window.templatesManager && window.templatesManager.switchImportMode('paste')">Paste KickStart</button>
+                                <button type="button" id="importModeUpload" onclick="window.templatesManager && window.templatesManager.switchImportMode('upload')">Upload File</button>
+                            </div>
+
+                            <div id="importPasteMode">
+                                <div class="form-group">
+                                    <label>Template Name</label>
+                                    <input type="text" id="importTemplateName" placeholder="e.g., my-custom-template" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Paste KickStart Content</label>
+                                    <textarea id="importTemplateYaml" placeholder="lang en_US.UTF-8&#10;cdrom&#10;keyboard --xlayouts=us" rows="12"></textarea>
+                                </div>
+                            </div>
+
+                            <div id="importUploadMode" style="display: none;">
+                                <div class="form-group">
+                                    <label>Select KickStart File</label>
+                                    <input type="file" id="importFileInput" accept=".cfg" class="import-file-input">
+                                    <div id="importFilePreview" class="import-file-preview"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="window.templatesManager && window.templatesManager.closeImportModal()">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="window.templatesManager && window.templatesManager.confirmImportTemplate()">Import</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Confirmation Modal -->
+                <div id="deleteConfirmModal" class="modal">
+                    <div class="modal-content modal-sm">
+                        <div class="modal-header">
+                            <h3>Delete Template</h3>
+                            <button type="button" class="modal-close" onclick="window.templatesManager && window.templatesManager.closeDeleteConfirm()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="deleteConfirmMessage">Are you sure you want to delete this template?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="window.templatesManager && window.templatesManager.closeDeleteConfirm()">Cancel</button>
+                            <button type="button" class="btn btn-danger" id="confirmDeleteBtn" onclick="window.templatesManager && window.templatesManager.confirmDelete()">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Initialize application when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, KickCraft app.js will handle initialization');
+
+            // Toggle serial options visibility based on checkbox state
+            const serialConsoleCheckbox = document.getElementById('serialConsoleCheckbox');
+            const serialOptions = document.getElementById('serialOptions');
+
+            if (serialConsoleCheckbox && serialOptions) {
+                serialConsoleCheckbox.addEventListener('change', function() {
+                    serialOptions.style.display = this.checked ? 'block' : 'none';
+                });
+            }
+
+            // Toggle kdump settings visibility based on kdump enabled checkbox
+            const kdumpEnabledCheckbox = document.getElementById('kdumpEnabled');
+            const kdumpSettings = document.getElementById('kdumpSettings');
+
+            if (kdumpEnabledCheckbox && kdumpSettings) {
+                kdumpEnabledCheckbox.addEventListener('change', function() {
+                    kdumpSettings.style.display = this.checked ? 'block' : 'none';
+                });
+            }
+        });
+        
+        // Service status indicator functionality
+        const serviceStatusIndicator = document.getElementById('serviceStatusIndicator');
+        
+        async function updateServiceStatus() {
+            const statusDot = serviceStatusIndicator.querySelector('.status-dot');
+            const statusText = serviceStatusIndicator.querySelector('.status-text');
+            
+            statusDot.className = 'status-dot status-checking';
+            statusText.textContent = 'Checking...';
+            
+            try {
+                const response = await fetch('/health');
+                if (response.ok) {
+                    statusDot.className = 'status-dot status-online';
+                    statusText.textContent = 'Online';
+                } else {
+                    throw new Error('Service returned error');
+                }
+            } catch (error) {
+                statusDot.className = 'status-dot status-offline';
+                statusText.textContent = 'Offline';
+            }
+        }
+        
+        // Initial check
+        updateServiceStatus();
+        
+        // Click to refresh
+        serviceStatusIndicator.addEventListener('click', updateServiceStatus);
+        
+        // Auto-refresh every 30 seconds
+        setInterval(updateServiceStatus, 30000);
+    </script>
+
+    <div id="toastContainer" class="toast-container"></div>
+</body>
+</html>

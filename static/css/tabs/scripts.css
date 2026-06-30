@@ -1,0 +1,60 @@
+/* Scripts Tab Styles */
+
+.scripts-section {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.scripts-section h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #1a1a2e;
+}
+
+.scripts-section .code-editor {
+    min-height: 150px;
+}
+
+/* Script type indicator */
+.script-type {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.script-type.pre {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.script-type.post {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+/* Script options */
+.script-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 6px;
+}
+
+.script-options label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}

@@ -1,6 +1,4 @@
-<<<<<<< HEAD
-# KickCraft
-=======
+
 # KickCraft - Rocky/CentOS Kickstart ISO Generator
 
 A web-based tool for generating automated installation ISOs for Rocky Linux and CentOS using Kickstart configuration files.
@@ -221,4 +219,3 @@ Considering that this project is designed for Rocky Linux/CentOS:
 ## License
 
 MIT License
->>>>>>> f759988 (v1.0)

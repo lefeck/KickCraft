@@ -1,0 +1,231 @@
+/* Advanced Tab Styles - Same style as Basic tab */
+
+/* Grid-based layout - single column with horizontal rows inside */
+#advanced .form-grid {
+    display: block !important;
+    margin-bottom: 24px;
+}
+
+/* Section container - same style as form-fieldset in base.css */
+#advanced .section-fieldset,
+#advanced .form-fieldset {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+    background: #fff;
+    margin-bottom: 16px;
+}
+
+#advanced .form-fieldset > legend {
+    font-weight: 600;
+    padding: 0 8px;
+    color: #495057;
+}
+
+/* Horizontal row layouts - 2 or 3 fields per row */
+#advanced .form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+#advanced .form-row.three-col {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+#advanced .form-row.single {
+    grid-template-columns: 1fr;
+}
+
+#advanced .form-row:last-child {
+    margin-bottom: 0;
+}
+
+/* Form groups within fieldset */
+#advanced .form-fieldset .form-group {
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+/* Switch grid for inline switches */
+#advanced .switch-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+/* Firewall services - horizontal layout */
+#advanced .firewall-services {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+#advanced .firewall-services .switch-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+}
+
+/* Bootloader Section */
+.bootloader-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+/* SELinux Visual */
+.selinux-visual {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.selinux-option {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.selinux-option:hover {
+    border-color: var(--primary-color);
+}
+
+.selinux-option.selected {
+    border-color: var(--primary-color);
+    background: #eff6ff;
+}
+
+.selinux-option.enforcing {
+    border-color: #22c55e;
+}
+
+.selinux-option.enforcing.selected {
+    background: #dcfce7;
+}
+
+.selinux-option.permissive {
+    border-color: #f59e0b;
+}
+
+.selinux-option.permissive.selected {
+    background: #fef3c7;
+}
+
+.selinux-option.disabled {
+    border-color: #64748b;
+}
+
+.selinux-option.disabled.selected {
+    background: #f1f5f9;
+}
+
+/* Services Section */
+.services-input {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.services-input .form-group {
+    display: flex;
+    gap: 8px;
+}
+
+.services-input .form-group input {
+    flex: 1;
+}
+
+/* Kernel parameters editor */
+.kernel-params-editor {
+    margin-top: 12px;
+}
+
+.kernel-params-preview {
+    padding: 8px 12px;
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: var(--radius-sm);
+    font-family: monospace;
+    font-size: 12px;
+    margin-top: 8px;
+    word-break: break-all;
+}
+
+/* Power policy */
+.power-policy {
+    margin-top: 16px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+}
+
+/* Timezone with NTP */
+.ntp-options {
+    margin-top: 12px;
+    padding: 12px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: var(--radius-sm);
+}
+
+.ntp-options.hidden {
+    display: none;
+}
+
+/* Repository management */
+.repo-management {
+    margin-top: 16px;
+}
+
+.repo-list {
+    margin-bottom: 12px;
+}
+
+.repo-item-advanced {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 8px;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+}
+
+.repo-item-advanced input {
+    flex: 1;
+}
+
+/* Snapshot/LVM hints */
+.storage-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    padding: 8px;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--info-color);
+}
+
+/* Driver disk section */
+.driver-disk {
+    margin-top: 16px;
+    padding: 12px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: var(--radius-sm);
+}
+
+.driver-disk h4 {
+    font-size: 14px;
+    margin-bottom: 8px;
+}

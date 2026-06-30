@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  kickcraft:
+    image: jetfuls/kickcraft:1.0-rocky10
+    container_name: kickcraft
+    ports:
+      - "8080:8080"
+    environment:
+      - KICKCRAFT_PORT=8080
+      - KICKCRAFT_MODE=release
+      - KICKCRAFT_VERSION=1.0
+      - STATIC_DIR=/app/static
+      - TEMPLATE_DIR=/app/templates
+    volumes:
+      - /tmp:/tmp
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped

@@ -1,0 +1,202 @@
+/* Packages Tab Styles */
+
+.package-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+    margin-bottom: 20px;
+}
+
+/* Package Groups */
+.package-groups {
+    margin-bottom: 24px;
+}
+
+.package-group-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+    padding: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Package Search */
+.package-search {
+    margin-bottom: 24px;
+}
+
+.search-input-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.search-input-group input {
+    flex: 1;
+}
+
+.search-results {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.search-result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background: #f1f5f9;
+}
+
+.search-result-item.selected {
+    background: #dbeafe;
+}
+
+.search-result-name {
+    font-weight: 500;
+}
+
+.search-result-summary {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.search-result-add {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.search-result-item:hover .search-result-add {
+    opacity: 1;
+}
+
+/* Selected Packages */
+.selected-packages {
+    margin-bottom: 24px;
+}
+
+.package-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 60px;
+    padding: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.package-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: #e2e8f0;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+}
+
+.package-item button {
+    background: none;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0;
+    line-height: 1;
+}
+
+.package-item button:hover {
+    color: var(--danger-color);
+}
+
+.no-packages {
+    color: var(--text-muted);
+    font-size: 13px;
+    padding: 12px;
+    text-align: center;
+    width: 100%;
+}
+
+/* Package categories */
+.package-category {
+    margin-bottom: 16px;
+}
+
+.package-category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f1f5f9;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+.package-category-header h4 {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.package-category-toggle {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* Language selector for packages */
+.package-languages {
+    margin-top: 12px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+}
+
+.package-languages label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* RPM repos section */
+.rpm-repos {
+    margin-top: 16px;
+    padding: 12px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: var(--radius-sm);
+}
+
+.rpm-repos h4 {
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.repo-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+}
+
+.repo-item input {
+    flex: 1;
+}

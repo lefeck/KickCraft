@@ -1,0 +1,244 @@
+/* Basic Tab Styles */
+
+/* Grid-based layout - single column with horizontal rows inside */
+#tab-basic .form-grid,
+#basic .form-grid {
+    display: block !important;
+    margin-bottom: 24px;
+}
+
+/* Section container - same style as form-fieldset in base.css */
+#basic .section-fieldset {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+    background: #fff;
+    margin-bottom: 16px;
+}
+
+#basic .section-fieldset > legend {
+    font-weight: 600;
+    padding: 0 8px;
+    color: #495057;
+}
+
+/* Horizontal row layouts - 2 or 3 fields per row */
+#basic .form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+#basic .form-row.three-col {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+#basic .form-row.single {
+    grid-template-columns: 1fr;
+}
+
+#basic .form-row:last-child {
+    margin-bottom: 0;
+}
+
+/* Fieldset styling (backward compatibility) */
+#basic .form-fieldset {
+    margin-bottom: 16px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+#basic .form-fieldset > legend {
+    font-weight: 600;
+    padding: 0 8px;
+    color: #495057;
+}
+
+/* Form groups */
+#basic .form-group {
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+/* Switch grid for inline switches */
+#basic .switch-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+#basic .switch-container {
+    padding: 4px 0;
+}
+
+/* Installation Source Options */
+#basic .install-source-options {
+    margin-top: 12px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+}
+
+#basic .install-source-options .form-row {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* Timezone options (--utc and --nontp switches) */
+#basic .timezone-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 12px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+}
+
+#basic .timezone-options .switch-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#basic .page-actions {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Distro Info */
+.distro-info {
+    padding: 12px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: var(--radius-sm);
+    margin-bottom: 16px;
+}
+
+.distro-info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 13px;
+}
+
+.distro-info-label {
+    color: var(--text-muted);
+}
+
+.distro-info-value {
+    font-weight: 500;
+}
+
+/* User item header with Delete button on right */
+#basic .user-item .user-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+#basic .user-item .user-item-title {
+    font-weight: 600;
+    color: #495057;
+}
+
+#basic .user-item .user-item-header .user-delete {
+    flex-shrink: 0;
+}
+
+/* User item layout */
+#basic .user-item {
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+}
+
+/* Radio Group Styling */
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.radio-label:hover {
+    background: #e2e8f0;
+}
+
+.radio-label input[type="radio"] {
+    accent-color: var(--primary-color);
+}
+
+/* Source Options */
+#sourceOptions {
+    margin-top: 12px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+}
+
+/* Password strength indicator */
+.password-field {
+    position: relative;
+}
+
+.password-strength {
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.password-strength-fill {
+    height: 100%;
+    transition: width 0.3s, background 0.3s;
+}
+
+.password-strength.weak .password-strength-fill {
+    width: 33%;
+    background: var(--danger-color);
+}
+
+.password-strength.medium .password-strength-fill {
+    width: 66%;
+    background: var(--warning-color);
+}
+
+.password-strength.strong .password-strength-fill {
+    width: 100%;
+    background: var(--success-color);
+}
+
+/* Validation Messages */
+.validation-message {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.validation-message.error {
+    color: var(--danger-color);
+}
+
+.validation-message.success {
+    color: var(--success-color);
+}
+
+.validation-message.warning {
+    color: var(--warning-color);
+}

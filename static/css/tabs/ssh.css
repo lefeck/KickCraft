@@ -1,0 +1,68 @@
+/* SSH Tab Styles */
+
+#tab-ssh .form-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* SSH Key Input */
+.ssh-key-container {
+    margin-bottom: 16px;
+}
+
+.ssh-key-textarea {
+    font-family: monospace;
+    font-size: 12px;
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* SSH Authorized Keys */
+.authorized-keys {
+    margin-top: 16px;
+}
+
+.key-item {
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    align-items: flex-start;
+}
+
+.key-item input {
+    flex: 1;
+}
+
+.key-item .user-select {
+    width: 150px;
+}
+
+.key-fingerprint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-family: monospace;
+}
+
+/* SSH Options */
+.ssh-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+    margin-top: 16px;
+}
+
+/* Disable root login warning */
+.root-login-warning {
+    padding: 12px;
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    margin-top: 12px;
+}

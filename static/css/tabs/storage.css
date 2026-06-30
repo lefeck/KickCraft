@@ -1,0 +1,286 @@
+/* Storage Tab Styles - Card-based UI */
+
+/* Section Headers */
+#storage h3 {
+    font-size: 16px;
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: #1a1a2e;
+}
+
+/* Storage Config Card */
+.storage-config-card {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+}
+
+#autopartSection {
+    padding: 15px;
+}
+
+.storage-config-card .storage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+#autopartSection .storage-header,
+#manualDiskOptionsCard .storage-header {
+    margin-bottom: 12px;
+}
+
+.storage-config-card .storage-header-main {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    min-width: 0;
+    flex: 1;
+}
+
+.storage-config-card .storage-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 12px;
+}
+
+.storage-config-card .storage-type {
+    font-weight: 600;
+    color: #0d6efd;
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+#autopartSection .storage-type {
+    color: #0d6efd;
+}
+
+.storage-config-card .storage-body {
+    background: transparent;
+}
+
+#autopartSection .storage-body .form-group,
+#manualDiskOptionsCard .storage-body .form-group {
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+.storage-config-card .storage-body.collapsed {
+    display: none;
+}
+
+/* Form Row Layout */
+.storage-config-card .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 15px;
+    align-items: flex-start;
+}
+
+.storage-config-card .form-row:last-child {
+    margin-bottom: 0;
+}
+
+.storage-config-card .form-group {
+    flex: 1;
+    min-width: 150px;
+}
+
+.storage-config-card .form-group[style*="width: 100%"] {
+    flex: 1 1 100%;
+}
+
+/* Remove Button */
+.storage-config-card .remove-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1.2;
+    transition: background-color 0.2s;
+}
+
+.storage-config-card .remove-btn:hover {
+    background-color: #c82333;
+}
+
+/* Add Item Button */
+.add-item-btn {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.2s;
+    margin-top: 8px;
+}
+
+.add-item-btn:hover {
+    background-color: #0b5ed7;
+}
+
+.storage-config-summary {
+    margin-top: 20px;
+}
+
+.storage-add-action-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.storage-add-action-group-full {
+    justify-content: center;
+}
+
+.storage-add-action-group-full .add-item-btn {
+    margin-bottom: 8px;
+}
+
+.storage-item-list {
+    margin-bottom: 16px;
+}
+
+/* Form Help Text */
+.storage-config-card .form-help {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.storage-card-type-row {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.storage-card-type-row > .form-group {
+    flex: unset !important;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+}
+
+.storage-card-type-spacer {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Storage toggles */
+.storage-config-card .storage-toggle-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 20px;
+    margin-bottom: 0;
+    align-items: stretch;
+}
+
+.storage-toggle-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 40px;
+    min-width: 0;
+}
+
+.storage-toggle-item .switch-label {
+    line-height: 1.4;
+}
+
+.storage-config-card .storage-form-spacer {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Checkbox Labels */
+.storage-config-card .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+/* Optional Labels */
+.storage-config-card label.optional {
+    color: #6c757d;
+    font-size: 13px;
+}
+
+/* Partition mode layout */
+.storage-bootloader-fieldset,
+.storage-partition-mode-fieldset {
+    margin-bottom: 20px;
+}
+
+.storage-bootloader-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.storage-bootloader-row-secondary {
+    grid-template-columns: 1fr;
+}
+
+.partition-mode-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.partition-mode-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.partition-mode-option input {
+    width: auto;
+    margin: 0;
+}
+
+/* Storage switches */
+.storage-switch-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 20px;
+}
+
+.storage-switch-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 40px;
+}
+
+.storage-switch-item .switch-label {
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .storage-card-type-row,
+    .storage-bootloader-row,
+    .partition-mode-row,
+    .storage-switch-grid,
+    .storage-config-card .storage-toggle-row {
+        grid-template-columns: 1fr;
+    }
+}

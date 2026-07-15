@@ -125,6 +125,8 @@ func (p *Parser) parseCommand(cfg *config.KickstartConfig, line string) error {
 		return p.parseKeyboard(cfg, args)
 	case "timezone":
 		return p.parseTimezone(cfg, args)
+	case "timesource":
+		return p.parseTimeSource(cfg, args)
 	case "rootpw":
 		return p.parseRootPw(cfg, args)
 	case "user":
@@ -166,11 +168,16 @@ func (p *Parser) parseCommand(cfg *config.KickstartConfig, line string) error {
 		return p.parseIgnoredisk(cfg, args)
 	case "autopart":
 		cfg.Storage.AutoPart = true
-		// Parse --type=<type> argument
+		// Parse arguments
 		for _, arg := range args {
 			if strings.HasPrefix(arg, "--type=") {
 				cfg.Storage.AutoPartType = strings.TrimPrefix(arg, "--type=")
-				break
+			}
+			if strings.HasPrefix(arg, "--fstype=") {
+				cfg.Storage.Fstype = strings.TrimPrefix(arg, "--fstype=")
+			}
+			if arg == "--nohome" {
+				cfg.Storage.NoHome = true
 			}
 		}
 		return nil
@@ -206,7 +213,8 @@ func (p *Parser) parseCommand(cfg *config.KickstartConfig, line string) error {
 		return nil
 	default:
 		// Unknown command - store as custom for later
-		cfg.AddCustomCommand(cmd, strings.Join(parts, " "))
+		// Store only the args (without the command name)
+		cfg.AddCustomCommand(cmd, strings.Join(args, " "))
 	}
 
 	return nil
@@ -309,6 +317,8 @@ func (p *Parser) parseNetwork(cfg *config.KickstartConfig, args []string) error 
 			net.NoIPv6 = true
 		case arg == "--activate":
 			net.Activate = true
+		case arg == "--no-activate":
+			net.NoActivate = true
 		case strings.HasPrefix(arg, "--mtu="):
 			net.MTU = strings.TrimPrefix(arg, "--mtu=")
 		}
@@ -339,13 +349,33 @@ func (p *Parser) parseLang(cfg *config.KickstartConfig, args []string) error {
 func (p *Parser) parseKeyboard(cfg *config.KickstartConfig, args []string) error {
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "--vckeymap=") {
-			cfg.Locale.Keymap = strings.TrimPrefix(arg, "--vckeymap=")
+			cfg.Locale.Keymap = p.stripQuotes(strings.TrimPrefix(arg, "--vckeymap="))
 		}
 		if strings.HasPrefix(arg, "--xlayouts=") {
-			cfg.Locale.XLayouts = strings.TrimPrefix(arg, "--xlayouts=")
+			cfg.Locale.XLayouts = p.stripQuotes(strings.TrimPrefix(arg, "--xlayouts="))
+		}
+	}
+	// If no vckeymap is set but xlayouts is provided, derive keymap from first layout
+	// This handles the case where a template uses --xlayouts='us' format
+	if cfg.Locale.Keymap == "" && cfg.Locale.XLayouts != "" {
+		// Take the first layout (split by comma for multiple layouts)
+		layouts := strings.Split(cfg.Locale.XLayouts, ",")
+		if len(layouts) > 0 {
+			cfg.Locale.Keymap = layouts[0]
 		}
 	}
 	return nil
+}
+
+// stripQuotes removes surrounding single or double quotes from a string
+func (p *Parser) stripQuotes(s string) string {
+	s = strings.TrimSpace(s)
+	if len(s) >= 2 {
+		if (s[0] == '\'' && s[len(s)-1] == '\'') || (s[0] == '"' && s[len(s)-1] == '"') {
+			return s[1 : len(s)-1]
+		}
+	}
+	return s
 }
 
 // --- Timezone ---
@@ -365,6 +395,21 @@ func (p *Parser) parseTimezone(cfg *config.KickstartConfig, args []string) error
 			if cfg.Locale.Timezone == "" {
 				cfg.Locale.Timezone = arg
 			}
+		}
+	}
+	return nil
+}
+
+// --- TimeSource (RHEL 9+; sets NTP behaviour) ---
+
+func (p *Parser) parseTimeSource(cfg *config.KickstartConfig, args []string) error {
+	cfg.TimeSourceSet = true
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "--ntp-disable") || arg == "--ntp_disable" {
+			cfg.Locale.NoNTP = true
+		}
+		if strings.HasPrefix(arg, "--ntp-server=") || strings.HasPrefix(arg, "--ntpserver=") {
+			cfg.Locale.NTPServers = strings.TrimPrefix(strings.TrimPrefix(arg, "--ntp-server="), "--ntpserver=")
 		}
 	}
 	return nil
@@ -424,18 +469,15 @@ func (p *Parser) parseHarddrive(cfg *config.KickstartConfig, args []string) erro
 func (p *Parser) parseRootPw(cfg *config.KickstartConfig, args []string) error {
 	cfg.RootPassword.IsSet = true
 
-	for i, arg := range args {
+	// First pass: identify all flags
+	for _, arg := range args {
 		if arg == "--plaintext" {
 			cfg.RootPassword.IsCrypted = false
 		} else if strings.HasPrefix(arg, "--plaintext=") {
 			cfg.RootPassword.IsCrypted = false
-			cfg.RootPassword.Password = strings.TrimPrefix(arg, "--plaintext=")
+			cfg.RootPassword.Password = p.stripQuotes(strings.TrimPrefix(arg, "--plaintext="))
 		} else if arg == "--iscrypted" {
 			cfg.RootPassword.IsCrypted = true
-			// Next arg might be the password value
-			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "--") {
-				cfg.RootPassword.Password = args[i+1]
-			}
 		} else if strings.HasPrefix(arg, "--iscrypted=") {
 			cfg.RootPassword.IsCrypted = true
 			cfg.RootPassword.Password = strings.TrimPrefix(arg, "--iscrypted=")
@@ -443,13 +485,18 @@ func (p *Parser) parseRootPw(cfg *config.KickstartConfig, args []string) error {
 			cfg.RootPassword.Lock = true
 		} else if arg == "--allow-ssh" {
 			cfg.RootPassword.AllowSsh = true
-		} else if !strings.HasPrefix(arg, "--") {
-			// Plain password argument (no flag prefix)
-			if cfg.RootPassword.Password == "" {
-				cfg.RootPassword.Password = arg
-			}
 		}
 	}
+
+	// Second pass: find the password (first non-flag argument)
+	// This handles cases like: rootpw --iscrypted --allow-ssh 密码
+	for _, arg := range args {
+		if !strings.HasPrefix(arg, "--") && cfg.RootPassword.Password == "" {
+			cfg.RootPassword.Password = arg
+			break
+		}
+	}
+
 	return nil
 }
 
@@ -531,6 +578,7 @@ func (p *Parser) parseAuthconfig(cfg *config.KickstartConfig, args []string) err
 // --- Bootloader ---
 
 func (p *Parser) parseBootloader(cfg *config.KickstartConfig, args []string) error {
+	cfg.Bootloader.IsSet = true
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "--location=") {
 			cfg.Bootloader.Location = strings.TrimPrefix(arg, "--location=")
@@ -551,6 +599,7 @@ func (p *Parser) parseBootloader(cfg *config.KickstartConfig, args []string) err
 // --- Firewall ---
 
 func (p *Parser) parseFirewall(cfg *config.KickstartConfig, args []string) error {
+	cfg.Firewall.IsSet = true
 	for _, arg := range args {
 		if arg == "--enabled" || arg == "--enable" {
 			cfg.Firewall.Enabled = true
@@ -559,10 +608,24 @@ func (p *Parser) parseFirewall(cfg *config.KickstartConfig, args []string) error
 			cfg.Firewall.Enabled = false
 		}
 		if strings.HasPrefix(arg, "--service=") {
-			cfg.Firewall.Services = append(cfg.Firewall.Services, strings.TrimPrefix(arg, "--service="))
+			services := strings.TrimPrefix(arg, "--service=")
+			// Support comma-separated services: --service=ssh,http,https
+			for _, svc := range strings.Split(services, ",") {
+				svc = strings.TrimSpace(svc)
+				if svc != "" {
+					cfg.Firewall.Services = append(cfg.Firewall.Services, svc)
+				}
+			}
 		}
 		if strings.HasPrefix(arg, "--port=") {
-			cfg.Firewall.Ports = append(cfg.Firewall.Ports, strings.TrimPrefix(arg, "--port="))
+			ports := strings.TrimPrefix(arg, "--port=")
+			// Support comma-separated ports: --port=80:tcp,443:tcp
+			for _, port := range strings.Split(ports, ",") {
+				port = strings.TrimSpace(port)
+				if port != "" {
+					cfg.Firewall.Ports = append(cfg.Firewall.Ports, port)
+				}
+			}
 		}
 	}
 	return nil
@@ -571,6 +634,7 @@ func (p *Parser) parseFirewall(cfg *config.KickstartConfig, args []string) error
 // --- SELinux ---
 
 func (p *Parser) parseSELinux(cfg *config.KickstartConfig, args []string) error {
+	cfg.SELinux.IsSet = true
 	for _, arg := range args {
 		if arg == "--enforcing" {
 			cfg.SELinux.Mode = "enforcing"
@@ -777,18 +841,23 @@ func (p *Parser) parseLogVol(cfg *config.KickstartConfig, args []string) error {
 // --- Clearpart ---
 
 func (p *Parser) parseClearPart(cfg *config.KickstartConfig, args []string) error {
+	cfg.Storage.Clearpart.IsSet = true
+	cfg.Storage.Clearpart.Type = "" // default
+
 	for _, arg := range args {
-		if arg == "--all" {
-			cfg.Storage.ClearAll = true
-		}
-		if arg == "--linux" {
-			cfg.Storage.ClearLinux = true
-		}
-		if strings.HasPrefix(arg, "--drives=") {
-			cfg.Storage.ClearDrives = strings.Split(strings.TrimPrefix(arg, "--drives="), ",")
-		}
-		if arg == "--initlabel" {
-			cfg.Storage.InitLabel = true
+		switch {
+		case arg == "--all":
+			cfg.Storage.Clearpart.Type = "all"
+		case arg == "--none":
+			cfg.Storage.Clearpart.Type = "none"
+		case arg == "--linux":
+			cfg.Storage.Clearpart.Type = "linux"
+		case strings.HasPrefix(arg, "--drives="):
+			cfg.Storage.Clearpart.DriveList = strings.Split(strings.TrimPrefix(arg, "--drives="), ",")
+		case strings.HasPrefix(arg, "--list="):
+			cfg.Storage.Clearpart.PartList = strings.Split(strings.TrimPrefix(arg, "--list="), ",")
+		case arg == "--initlabel":
+			cfg.Storage.Clearpart.InitLabel = true
 		}
 	}
 	return nil
@@ -857,6 +926,7 @@ func (p *Parser) parseEula(cfg *config.KickstartConfig, args []string) error {
 	for _, arg := range args {
 		if arg == "--agreed" {
 			cfg.EULA = "agreed"
+			cfg.EULASet = true
 		}
 	}
 	return nil

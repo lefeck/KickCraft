@@ -11,23 +11,25 @@ class ConfigManager {
         return {
             locale: {
                 lang: 'en_US.UTF-8',
-                keymap: 'us',
+                keymap: '',
                 xlayouts: '',
                 addSupport: '',
-                timezone: 'UTC',
-                utc: true,
+                timezone: '',
+                utc: false,
                 noNtp: false,
                 ntpServers: ''
             },
             rootPassword: {
                 password: '',
                 isCrypted: false,
-                lock: true,
+                lock: false,
+                allowSsh: false,
                 isSet: false
             },
             users: [],
             bootloader: {
-                location: 'mbr',
+                isSet: false,
+                location: '',
                 append: '',
                 bootDrive: '',
                 driveOrder: []
@@ -35,6 +37,7 @@ class ConfigManager {
             storage: {
                 zerombr: false,
                 clearAll: false,
+                clearNone: false,
                 clearLinux: false,
                 clearDrives: [],
                 initLabel: false,
@@ -46,25 +49,28 @@ class ConfigManager {
             },
             network: [],
             firewall: {
-                enabled: true,
-                services: ['ssh'],
+                isSet: false,
+                enabled: false,
+                services: [],
                 ports: [],
                 trust: []
             },
             selinux: {
-                mode: 'enforcing'
+                isSet: false,
+                mode: ''
             },
             auth: {
-                enableShadow: true,
-                passwordAlgorithm: 'sha512'
+                enableShadow: false,
+                passwordAlgorithm: ''
             },
             services: {
                 enabled: [],
-                disabled: ['chronyd', 'postfix']
+                disabled: []
             },
             kdump: {
-                enabled: true,
-                reserveMb: 'auto'
+                isSet: false,
+                enabled: false,
+                reserveMb: ''
             },
             repos: [],
             packages: {
@@ -81,9 +87,10 @@ class ConfigManager {
             postNoChrootScripts: [],
             graphics: {
                 skipX: false,
-                firstBoot: 'enabled'
+                firstBoot: ''
             },
-            eula: ''
+            eula: '',
+            eulaSet: false
         };
     }
 
@@ -289,8 +296,8 @@ class ConfigManager {
         }
 
         // Check storage
-        if (!this.config.storage.zerombr && 
-            !this.config.storage.clearAll && 
+        if (!this.config.storage.zerombr &&
+            (!this.config.storage.clearpart || !this.config.storage.clearpart.isSet) &&
             this.config.storage.partitions.length === 0) {
             warnings.push('Consider adding zerombr or clearpart to avoid interactive partitioning');
         }

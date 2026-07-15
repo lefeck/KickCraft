@@ -599,54 +599,99 @@
                             <div class="storage-header-actions"></div>
                         </div>
                         <div class="storage-body">
-                            <div class="form-group">
-                                <label for="autopartType">Partition Type <span class="hint-icon" data-tooltip="Automatic partitioning scheme type">?</span></label>
-                                <select id="autopartType" class="form-select">
-                                    <option value="lvm">LVM (Default)</option>
-                                    <option value="plain">Plain (No LVM)</option>
-                                    <option value="thinp">LVM Thin Provisioning</option>
-                                    <option value="btrfs">Btrfs</option>
-                                </select>
+                            <div class="form-row">
+                                <div class="form-group" style="flex: 1;">
+                                    <label for="autopartType">Partition Type <span class="hint-icon" data-tooltip="Automatic partitioning scheme type">?</span></label>
+                                    <select id="autopartType" class="form-select">
+                                        <option value="lvm">LVM (Default)</option>
+                                        <option value="plain">Plain (No LVM)</option>
+                                        <option value="thinp">LVM Thin Provisioning</option>
+                                        <option value="btrfs">Btrfs</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="flex: 1;">
+                                    <label for="autopartFstype">File System Type <span class="hint-icon" data-tooltip="Filesystem type for automatic partitioning. Available: ext2, ext3, ext4, xfs, vfat. Default: xfs">?</span></label>
+                                    <select id="autopartFstype" class="form-select">
+                                        <option value="">Default (xfs)</option>
+                                        <option value="ext2">ext2</option>
+                                        <option value="ext3">ext3</option>
+                                        <option value="ext4">ext4</option>
+                                        <option value="xfs">xfs</option>
+                                        <option value="vfat">vfat</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="storage-switch-item">
+                                <label class="switch">
+                                    <input type="checkbox" id="autopartNohome">
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="switch-label">No Home Partition <span class="hint-icon" data-tooltip="Disable automatic creation of /home partition">?</span></span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Manual Partition Section -->
-                    <div id="manualPartitionSection" style="display: none;">
-                        <div class="storage-config-card" id="manualDiskOptionsCard">
-                            <div class="storage-header" onclick="this.nextElementSibling.classList.toggle('collapsed')">
-                                <div class="storage-header-main">
-                                    <span class="storage-type">Disk Options</span>
-                                </div>
-                                <div class="storage-header-actions"></div>
+                    <!-- Disk Options - Shared between Auto and Manual modes -->
+                    <div class="storage-config-card" id="diskOptionsCard">
+                        <div class="storage-header" onclick="this.nextElementSibling.classList.toggle('collapsed')">
+                            <div class="storage-header-main">
+                                <span class="storage-type">Disk Options</span>
                             </div>
-                            <div class="storage-body">
-                                <div class="storage-switch-grid">
-                                    <div class="storage-switch-item">
-                                        <label class="switch">
-                                            <input type="checkbox" id="zerombr">
-                                            <span class="slider"></span>
-                                        </label>
-                                        <span class="switch-label">Initialize disk label (zerombr) <span class="hint-icon" data-tooltip="Required for non-MBR disks">?</span></span>
-                                    </div>
-                                    <div class="storage-switch-item">
-                                        <label class="switch">
-                                            <input type="checkbox" id="clearpartAll" checked>
-                                            <span class="slider"></span>
-                                        </label>
-                                        <span class="switch-label">Clear all partitions <span class="hint-icon" data-tooltip="Remove all existing partitions before installing">?</span></span>
-                                    </div>
-                                    <div class="storage-switch-item">
-                                        <label class="switch">
-                                            <input type="checkbox" id="initLabel">
-                                            <span class="slider"></span>
-                                        </label>
-                                        <span class="switch-label">Initialize disk label (--initlabel) <span class="hint-icon" data-tooltip="Force disk label initialization">?</span></span>
+                            <div class="storage-header-actions"></div>
+                        </div>
+                        <div class="storage-body">
+                            <!-- Zerombr (outside clearpart frame) -->
+                            <div class="form-row">
+                                <div class="storage-toggle-item">
+                                    <label class="switch">
+                                        <input type="checkbox" id="zerombr">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="switch-label">Initialize disk label (zerombr)</span>
+                                </div>
+                            </div>
+
+                            <!-- Clear Partitions Group -->
+                            <div class="clearpart-label-outer">Clear Partitions</div>
+                            <div class="clearpart-wrapper">
+                                <div class="form-row">
+                                    <div class="form-group" style="flex: 1;">
+                                        <label for="clearpartTypeSelect" class="optional">Partition Mode <span class="hint-icon" data-tooltip="Choose which partitions to clear before installation">?</span></label>
+                                        <select id="clearpartTypeSelect" class="form-select">
+                                            <option value="none">None (Keep existing)</option>
+                                            <option value="linux">Linux (Linux only)</option>
+                                            <option value="all" selected>All (Clear all)</option>
+                                        </select>
+                                        <input type="hidden" name="clearpartType" id="clearpartType" value="all">
                                     </div>
                                 </div>
+
+                                <!-- Drives and Partitions -->
+                                <div class="form-row" style="margin-top: 12px;">
+                                    <div class="form-group" style="flex: 1;">
+                                        <label for="clearpartDrives" class="optional">Drives <span class="hint-icon" data-tooltip="Comma-separated drive names, e.g. sda, sdb">?</span></label>
+                                        <input type="text" id="clearpartDrives" class="form-input" placeholder="sda, sdb">
+                                    </div>
+                                    <div class="form-group" style="flex: 1;">
+                                        <label for="clearpartList" class="optional">Partitions <span class="hint-icon" data-tooltip="Comma-separated partition names, e.g. sda2, sda3">?</span></label>
+                                        <input type="text" id="clearpartList" class="form-input" placeholder="sda2, sda3">
+                                    </div>
+                                </div>
+
+                            <!-- Init Label -->
+                            <div class="storage-toggle-item">
+                                <label class="switch">
+                                    <input type="checkbox" id="initLabel">
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="switch-label">Force disk label init (--initlabel)</span>
+                            </div>
                             </div>
                         </div>
+                    </div>
 
+                    <!-- Manual Partition Section - Storage Configurations (Manual mode only) -->
+                    <div id="manualPartitionSection" style="display: none;">
                         <div class="form-group">
                             <h3>Storage Configurations</h3>
                             <p class="form-help">Use the storage configuration cards below. Each card has its own Disk Type field and switching the type only affects that card template.</p>
@@ -845,35 +890,35 @@
                                         <input type="checkbox" class="package-group" value="@^minimal-environment">
                                         <span class="slider"></span>
                                     </label>
-                                    <span class="switch-label">Minimal Environment <span class="hint-icon" data-tooltip="Minimal installation environment">?</span></span>
+                                    <span class="switch-label">Minimal Environment</span>
                                 </div>
                                 <div class="switch-container">
                                     <label class="switch">
                                         <input type="checkbox" class="package-group" value="@development">
                                         <span class="slider"></span>
                                     </label>
-                                    <span class="switch-label">Development <span class="hint-icon" data-tooltip="Development tools and utilities">?</span></span>
+                                    <span class="switch-label">Development</span>
                                 </div>
                                 <div class="switch-container">
                                     <label class="switch">
                                         <input type="checkbox" class="package-group" value="@network-server">
                                         <span class="slider"></span>
                                     </label>
-                                    <span class="switch-label">Network Server <span class="hint-icon" data-tooltip="Network server packages">?</span></span>
+                                    <span class="switch-label">Network Server</span>
                                 </div>
                                 <div class="switch-container">
                                     <label class="switch">
                                         <input type="checkbox" class="package-group" value="@standard">
                                         <span class="slider"></span>
                                     </label>
-                                    <span class="switch-label">Standard <span class="hint-icon" data-tooltip="Standard package group">?</span></span>
+                                    <span class="switch-label">Standard</span>
                                 </div>
                                 <div class="switch-container">
                                     <label class="switch">
                                         <input type="checkbox" class="package-group" value="@system-tools">
                                         <span class="slider"></span>
                                     </label>
-                                    <span class="switch-label">System Tools <span class="hint-icon" data-tooltip="System administration tools">?</span></span>
+                                    <span class="switch-label">System Tools</span>
                                 </div>
                             </div>
                         </div>

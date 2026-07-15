@@ -218,7 +218,17 @@ class TemplatesManager {
                 lines.push(`Logical Volumes: ${config.storage.logVols.length}`);
             }
             if (config.storage.zerombr) lines.push(`Zerombr: enabled`);
-            if (config.storage.clearAll) lines.push(`Clear All: enabled`);
+            if (config.storage.clearpart && config.storage.clearpart.isSet) {
+                let cp = `Clearpart: --${config.storage.clearpart.type || 'all'}`;
+                if (config.storage.clearpart.driveList && config.storage.clearpart.driveList.length > 0) {
+                    cp += ` --drives=${config.storage.clearpart.driveList.join(',')}`;
+                }
+                if (config.storage.clearpart.partList && config.storage.clearpart.partList.length > 0) {
+                    cp += ` --list=${config.storage.clearpart.partList.join(',')}`;
+                }
+                if (config.storage.clearpart.initLabel) cp += ' --initlabel';
+                lines.push(cp);
+            }
         }
 
         // Packages
@@ -315,7 +325,58 @@ class TemplatesManager {
                 console.log('Config extracted:', JSON.stringify(config, null, 2));
 
                 window.AppState.config = config;
+
+                // Pre-clean UI fields that may still hold content from a
+                // previously-applied template. updateFormFromConfig only writes
+                // a value when the corresponding key is present in `config`,
+                // so fields missing from the new template would otherwise keep
+                // stale content (e.g. %post/%pre scripts, additional packages,
+                // anaconda section, kdump settings, etc.).
+                const scriptFields = ['preScript', 'postScript', 'postNoChrootScript', 'anacondaSection'];
+                scriptFields.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+
+                // Clear Additional Packages textarea and all package-group
+                // switches so a previously-applied template's selections don't
+                // leak through into the new template.
+                const additionalPackagesEl = document.getElementById('additionalPackages');
+                if (additionalPackagesEl) additionalPackagesEl.value = '';
+                document.querySelectorAll('.package-group').forEach(cb => {
+                    cb.checked = false;
+                });
+
+                ['rootPassword', 'lockRoot', 'rootPasswordAllowSsh', 'rootPasswordCrypted'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && (el.type === 'checkbox')) el.checked = false;
+                    if (el && el.tagName === 'INPUT') el.value = '';
+                });
+                if (window.kdumpManager && typeof window.kdumpManager.reset === 'function') {
+                    window.kdumpManager.reset();
+                } else {
+                    const kdumpEnabled = document.getElementById('kdumpEnabled');
+                    if (kdumpEnabled) kdumpEnabled.checked = false;
+                    const kdumpReserveMb = document.getElementById('kdumpReserveMb');
+                    if (kdumpReserveMb) kdumpReserveMb.value = 'auto';
+                    const kdumpCommand = document.getElementById('kdumpCommand');
+                    if (kdumpCommand) kdumpCommand.value = '';
+                }
+
                 window.updateFormFromConfig(config);
+
+                // Clear the Configuration Preview so stale content from a
+                // previously-applied template doesn't linger after switching.
+                const previewEl = document.getElementById('configPreview');
+                if (previewEl) {
+                    previewEl.textContent = '';
+                    previewEl.style.display = 'none';
+                }
+                const previewActions = document.getElementById('kickstartActions');
+                if (previewActions) {
+                    previewActions.style.display = 'none';
+                }
+
                 window.showToast(`Template "${this.selectedTemplate.name}" applied`, 'success');
 
                 // Switch to the Configuration page — uses the same AppNavigation

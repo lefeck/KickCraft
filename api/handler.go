@@ -642,7 +642,7 @@ func UpdateTemplate(c *gin.Context) {
 
 	// Check if template exists
 	handler.templatesMu.RLock()
-	_, exists := handler.templates[name]
+	existing, exists := handler.templates[name]
 	handler.templatesMu.RUnlock()
 
 	if !exists {
@@ -652,10 +652,7 @@ func UpdateTemplate(c *gin.Context) {
 
 	// Check if it's a user template (cannot update preset templates)
 	userCfgPath := filepath.Join(handler.options.TemplatesDir, "user", name+".cfg")
-	if _, err := os.Stat(userCfgPath); os.IsNotExist(err) {
-		c.JSON(403, gin.H{"success": false, "error": "Cannot update preset templates"})
-		return
-	}
+	presetCfgPath := filepath.Join(handler.options.TemplatesDir, "presets", name+".cfg")
 
 	var req UpdateTemplateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -663,22 +660,44 @@ func UpdateTemplate(c *gin.Context) {
 		return
 	}
 
+	// Determine if this is a preset template
+	isPreset := false
+	if existing.filePath != "" {
+		if strings.HasPrefix(existing.filePath, filepath.Join(handler.options.TemplatesDir, "presets")) {
+			isPreset = true
+		}
+	} else {
+		// Fallback: check if file exists in presets directory
+		if _, err := os.Stat(presetCfgPath); err == nil {
+			isPreset = true
+		}
+	}
+
 	var cfg *config.KickstartConfig
 	var rawContent string
 
 	if req.RawContent != "" {
-		// Use raw content directly
+		// Use raw content directly (preferred for presets)
 		rawContent = req.RawContent
-		// Also parse it to update the config
 		cfg, _ = parser.ParseFromString(req.RawContent)
 	} else if req.Config != nil {
 		cfg = req.Config
+		if isPreset {
+			// For preset templates, we cannot regenerate rawContent from config
+			// because ToString() loses original formatting/comments
+			c.JSON(400, gin.H{"success": false, "error": "Cannot update preset templates with form data. Use raw content instead."})
+			return
+		}
 		rawContent = cfg.ToString()
 	} else if req.ConfigString != "" {
 		var err error
 		cfg, err = parser.ParseFromString(req.ConfigString)
 		if err != nil {
 			c.JSON(400, gin.H{"success": false, "error": err.Error()})
+			return
+		}
+		if isPreset {
+			c.JSON(400, gin.H{"success": false, "error": "Cannot update preset templates with form data. Use raw content instead."})
 			return
 		}
 		rawContent = req.ConfigString
@@ -690,6 +709,21 @@ func UpdateTemplate(c *gin.Context) {
 	// If rawContent is still empty, generate from config
 	if rawContent == "" && cfg != nil {
 		rawContent = cfg.ToString()
+	}
+
+	// For preset templates, do NOT write to disk
+	if isPreset {
+		// Only update in-memory map, not the file
+		handler.templatesMu.Lock()
+		handler.templates[name] = &templateEntry{
+			config:     cfg,
+			rawContent: rawContent,
+			filePath:   existing.filePath,
+		}
+		handler.templatesMu.Unlock()
+
+		c.JSON(200, gin.H{"success": true, "message": "Preset template loaded (read-only)"})
+		return
 	}
 
 	// Save as .cfg file

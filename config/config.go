@@ -51,13 +51,15 @@ type KickstartConfig struct {
 	OnError             string         `json:"onError"`
 
 	// Other settings
-	EULA        string            `json:"eula"`
-	Services    ServicesConfig    `json:"services"`
-	PowerAction string            `json:"powerAction"` // reboot, poweroff, shutdown, halt
-	FirstBoot   string            `json:"firstBoot"`   // enabled, disabled, reconfig
-	CustomCmds  map[string]string `json:"customCommands"`
-	CustomSecs  map[string]string `json:"customSections"`
-	Kdump       KdumpConfig       `json:"kdump"`
+	EULA          string            `json:"eula"`
+	EULASet       bool              `json:"eulaSet"`
+	TimeSourceSet bool              `json:"timeSourceSet"`
+	Services      ServicesConfig    `json:"services"`
+	PowerAction   string            `json:"powerAction"` // reboot, poweroff, shutdown, halt
+	FirstBoot     string            `json:"firstBoot"`   // enabled, disabled, reconfig
+	CustomCmds    map[string]string `json:"customCommands"`
+	CustomSecs    map[string]string `json:"customSections"`
+	Kdump         KdumpConfig       `json:"kdump"`
 	// Preserve original line order for non-section commands
 	RawLines []string `json:"rawLines"`
 }
@@ -189,34 +191,43 @@ type SSHKeyConfig struct {
 
 type BootloaderConfig struct {
 	Location   string   `json:"location,omitempty"` // mbr, partition, none
+	IsSet      bool     `json:"isSet"`
 	Append     string   `json:"append,omitempty"`
 	BootDrive  string   `json:"bootDrive,omitempty"`
 	DriveOrder []string `json:"driveOrder,omitempty"`
 }
 
 func NewBootloaderConfig() BootloaderConfig {
-	return BootloaderConfig{
-		Location: "mbr",
-	}
+	return BootloaderConfig{}
 }
 
 // --- Storage Configuration ---
 
+// ClearpartConfig - matches Kickstart clearpart command
+// clearpart [--all|--linux|--none] [--drives=drive1,drive2] [--list=partition1,partition2] [--initlabel]
+type ClearpartConfig struct {
+	IsSet     bool     `json:"isSet"`
+	Type      string   `json:"type"`      // "all" | "linux" | "none" | ""
+	DriveList []string `json:"driveList"` // --drives= (e.g. ["sda", "sdb"])
+	PartList  []string `json:"partList"`  // --list= (e.g. ["sda2", "sda3"])
+	InitLabel bool     `json:"initLabel"` // --initlabel
+}
+
 type StorageConfig struct {
 	// Disk management
-	Zerombr               bool     `json:"zerombr"`
-	ClearAll              bool     `json:"clearAll"`
-	ClearLinux            bool     `json:"clearLinux"`
-	ClearDrives           []string `json:"clearDrives,omitempty"`
-	InitLabel             bool     `json:"initLabel"`
-	IgnoreDiskDrives      []string `json:"ignoreDiskDrives,omitempty"`
-	OnlyUseDrives         []string `json:"onlyUseDrives,omitempty"`
-	IgnoreDiskInteractive bool     `json:"ignoreDiskInteractive"`
-	IgnoreDiskOnlyUse     bool     `json:"ignoreDiskOnlyUse"`
+	Zerombr               bool            `json:"zerombr"`
+	Clearpart             ClearpartConfig `json:"clearpart"`
+	InitLabel             bool            `json:"initLabel"` // Deprecated: use Clearpart.InitLabel
+	IgnoreDiskDrives      []string        `json:"ignoreDiskDrives,omitempty"`
+	OnlyUseDrives         []string        `json:"onlyUseDrives,omitempty"`
+	IgnoreDiskInteractive bool            `json:"ignoreDiskInteractive"`
+	IgnoreDiskOnlyUse     bool            `json:"ignoreDiskOnlyUse"`
 
 	// Auto partitioning
 	AutoPart     bool   `json:"autopart"`     // Enable autopart
 	AutoPartType string `json:"autopartType"` // lvm, plain, thinp, btrfs
+	Fstype       string `json:"fstype"`       // Filesystem type: ext2, ext3, ext4, xfs, vfat
+	NoHome       bool   `json:"nohome"`       // Disable partition auto creation of /home
 
 	// Btrfs
 	Btrfs []BtrfsConfig `json:"btrfs"`
@@ -338,26 +349,24 @@ type NetworkConfig struct {
 
 type FirewallConfig struct {
 	Enabled  bool     `json:"enabled"`
+	IsSet    bool     `json:"isSet"`
 	Services []string `json:"services,omitempty"`
 	Ports    []string `json:"ports,omitempty"`
 }
 
 func NewFirewallConfig() FirewallConfig {
-	return FirewallConfig{
-		Enabled: true,
-	}
+	return FirewallConfig{}
 }
 
 // --- SELinux Configuration ---
 
 type SELinuxConfig struct {
-	Mode string `json:"mode"` // enforcing, permissive, disabled
+	Mode  string `json:"mode"` // enforcing, permissive, disabled
+	IsSet bool   `json:"isSet"`
 }
 
 func NewSELinuxConfig() SELinuxConfig {
-	return SELinuxConfig{
-		Mode: "enforcing",
-	}
+	return SELinuxConfig{}
 }
 
 // --- Auth Configuration ---
@@ -459,7 +468,7 @@ func (c *KickstartConfig) ToString() string {
 	// structured field instead of the original line. This preserves
 	// original order while reflecting any user edits to the form.
 	structuredCmds := []string{
-		"lang", "keyboard", "timezone", "rootpw", "eula", "authconfig",
+		"lang", "keyboard", "timezone", "timesource", "rootpw", "user", "eula", "authconfig",
 		"selinux", "firewall", "services", "bootloader", "zerombr",
 		"ignoredisk", "clearpart", "autopart", "part", "volgroup",
 		"logvol", "raid", "btrfs", "network", "repo", "skipx",
@@ -487,12 +496,12 @@ func (c *KickstartConfig) ToString() string {
 			}
 		case "keyboard":
 			if c.Locale.Keymap != "" || c.Locale.XLayouts != "" {
-				sb.WriteString("keyboard ")
+				sb.WriteString("keyboard")
 				if c.Locale.Keymap != "" {
-					sb.WriteString(fmt.Sprintf("--vckeymap=%s", c.Locale.Keymap))
+					sb.WriteString(fmt.Sprintf(" --vckeymap=%s", c.Locale.Keymap))
 				}
 				if c.Locale.XLayouts != "" {
-					sb.WriteString(fmt.Sprintf("--xlayouts=%s", c.Locale.XLayouts))
+					sb.WriteString(fmt.Sprintf(" --xlayouts=%s", c.Locale.XLayouts))
 				}
 				sb.WriteString("\n")
 				emitted[cmd] = true
@@ -511,6 +520,20 @@ func (c *KickstartConfig) ToString() string {
 					sb.WriteString(fmt.Sprintf(" --ntpservers=%s", c.Locale.NTPServers))
 				}
 				sb.WriteString("\n")
+				emitted[cmd] = true
+				return true
+			}
+		case "timesource":
+			// Only emit if explicitly set via parser/form; do not
+			// duplicate the --nontp flag that already appears on the
+			// timezone line above.
+			if c.TimeSourceSet {
+				if c.Locale.NoNTP {
+					sb.WriteString("timesource --ntp-disable\n")
+				}
+				if c.Locale.NTPServers != "" {
+					sb.WriteString(fmt.Sprintf("timesource --ntp-server=%s\n", c.Locale.NTPServers))
+				}
 				emitted[cmd] = true
 				return true
 			}
@@ -534,6 +557,40 @@ func (c *KickstartConfig) ToString() string {
 				emitted[cmd] = true
 				return true
 			}
+		case "user":
+			for _, user := range c.Users {
+				sb.WriteString("user")
+				if user.Name != "" {
+					sb.WriteString(fmt.Sprintf(" --name=%s", user.Name))
+				}
+				if user.Password != "" {
+					if user.IsCrypted {
+						sb.WriteString(" --iscrypted")
+						sb.WriteString(fmt.Sprintf(" --password=%s", user.Password))
+					} else {
+						sb.WriteString(" --plaintext")
+						sb.WriteString(fmt.Sprintf(" --password=%s", user.Password))
+					}
+				}
+				if user.Gecos != "" {
+					sb.WriteString(fmt.Sprintf(" --gecos=\"%s\"", user.Gecos))
+				}
+				if user.Groups != nil && len(user.Groups) > 0 {
+					sb.WriteString(fmt.Sprintf(" --groups=%s", strings.Join(user.Groups, ",")))
+				}
+				if user.HomeDir != "" {
+					sb.WriteString(fmt.Sprintf(" --homedir=%s", user.HomeDir))
+				}
+				if user.Shell != "" {
+					sb.WriteString(fmt.Sprintf(" --shell=%s", user.Shell))
+				}
+				if user.Lock {
+					sb.WriteString(" --lock")
+				}
+				sb.WriteString("\n")
+				emitted[cmd] = true
+			}
+			return true
 		case "text", "cmdline", "graphical":
 			if c.InstallMode == cmd {
 				sb.WriteString(cmd + "\n")
@@ -582,7 +639,7 @@ func (c *KickstartConfig) ToString() string {
 				return true
 			}
 		case "bootloader":
-			if c.Bootloader.Location != "" || c.Bootloader.Append != "" || c.Bootloader.BootDrive != "" {
+			if c.Bootloader.IsSet {
 				sb.WriteString("bootloader")
 				if c.Bootloader.Location != "" {
 					sb.WriteString(fmt.Sprintf(" --location=%s", c.Bootloader.Location))
@@ -606,27 +663,33 @@ func (c *KickstartConfig) ToString() string {
 			// omitting it is safe for current targets.)
 			return false
 		case "selinux":
-			if c.SELinux.Mode != "" {
+			if c.SELinux.IsSet {
 				sb.WriteString(fmt.Sprintf("selinux --%s\n", c.SELinux.Mode))
 				emitted[cmd] = true
 				return true
 			}
 		case "firewall":
-			sb.WriteString("firewall")
-			if c.Firewall.Enabled {
-				sb.WriteString(" --enabled")
-			} else {
-				sb.WriteString(" --disabled")
+			// Emit firewall if explicitly enabled, OR if services/ports are configured
+			if c.Firewall.IsSet || len(c.Firewall.Services) > 0 || len(c.Firewall.Ports) > 0 {
+				sb.WriteString("firewall")
+				// If enabled flag is set, use it; otherwise omit (defaults to enabled)
+				if c.Firewall.IsSet {
+					if c.Firewall.Enabled {
+						sb.WriteString(" --enabled")
+					} else {
+						sb.WriteString(" --disabled")
+					}
+				}
+				if len(c.Firewall.Services) > 0 {
+					sb.WriteString(fmt.Sprintf(" --service=%s", strings.Join(c.Firewall.Services, ",")))
+				}
+				if len(c.Firewall.Ports) > 0 {
+					sb.WriteString(fmt.Sprintf(" --port=%s", strings.Join(c.Firewall.Ports, ",")))
+				}
+				sb.WriteString("\n")
+				emitted[cmd] = true
+				return true
 			}
-			for _, svc := range c.Firewall.Services {
-				sb.WriteString(fmt.Sprintf(" --service=%s", svc))
-			}
-			for _, port := range c.Firewall.Ports {
-				sb.WriteString(fmt.Sprintf(" --port=%s", port))
-			}
-			sb.WriteString("\n")
-			emitted[cmd] = true
-			return true
 		case "services":
 			if len(c.Services.Enabled) > 0 || len(c.Services.Disabled) > 0 {
 				sb.WriteString("services")
@@ -658,25 +721,37 @@ func (c *KickstartConfig) ToString() string {
 				return true
 			}
 		case "clearpart":
-			if c.Storage.ClearAll || c.Storage.ClearLinux {
-				sb.WriteString("clearpart --")
-				if c.Storage.ClearAll {
-					sb.WriteString("all")
-				} else {
-					sb.WriteString("linux")
-				}
-				if c.Storage.InitLabel {
-					sb.WriteString(" --initlabel")
-				}
-				sb.WriteString("\n")
-				emitted[cmd] = true
-				return true
+			cp := c.Storage.Clearpart
+			if !cp.IsSet {
+				return false
 			}
+			sb.WriteString("clearpart")
+			if cp.Type != "" {
+				sb.WriteString(fmt.Sprintf(" --%s", cp.Type))
+			}
+			if len(cp.DriveList) > 0 {
+				sb.WriteString(fmt.Sprintf(" --drives=%s", strings.Join(cp.DriveList, ",")))
+			}
+			if len(cp.PartList) > 0 {
+				sb.WriteString(fmt.Sprintf(" --list=%s", strings.Join(cp.PartList, ",")))
+			}
+			if cp.InitLabel {
+				sb.WriteString(" --initlabel")
+			}
+			sb.WriteString("\n")
+			emitted[cmd] = true
+			return true
 		case "autopart":
 			if c.Storage.AutoPart {
 				sb.WriteString("autopart")
 				if c.Storage.AutoPartType != "" {
 					sb.WriteString(fmt.Sprintf(" --type=%s", c.Storage.AutoPartType))
+				}
+				if c.Storage.Fstype != "" {
+					sb.WriteString(fmt.Sprintf(" --fstype=%s", c.Storage.Fstype))
+				}
+				if c.Storage.NoHome {
+					sb.WriteString(" --nohome")
 				}
 				sb.WriteString("\n")
 				emitted[cmd] = true
@@ -829,13 +904,15 @@ func (c *KickstartConfig) ToString() string {
 			}
 		case "network":
 			for i, net := range c.Networks {
-				sb.WriteString("network ")
-				// Apply hostname to the first network device only, so
-				// the user's hostname edit in the form is reflected in
-				// the output.
+				// Per Kickstart spec, --hostname must be in a separate network command
+				// Output: network --hostname=xxx
 				if i == 0 && c.Locale.Hostname != "" {
-					sb.WriteString(fmt.Sprintf("--hostname=%s ", c.Locale.Hostname))
+					sb.WriteString(fmt.Sprintf("network --hostname=%s\n", c.Locale.Hostname))
 				}
+
+				// Second network command with all other settings
+				// Output: network --bootproto=xxx --device=xxx ...
+				sb.WriteString("network ")
 				if net.Device != "" {
 					sb.WriteString(fmt.Sprintf("--device=%s ", net.Device))
 				}
@@ -938,7 +1015,7 @@ func (c *KickstartConfig) ToString() string {
 				return true
 			}
 		case "eula":
-			if c.EULA == "agreed" {
+			if c.EULASet {
 				sb.WriteString("eula --agreed\n")
 				emitted[cmd] = true
 				return true
@@ -996,9 +1073,7 @@ func (c *KickstartConfig) ToString() string {
 			continue
 		}
 		if strings.HasPrefix(trimmed, "#") {
-			if openSection == "" || !knownSections[openSection] {
-				sb.WriteString(line + "\n")
-			}
+			// Skip all comments
 			continue
 		}
 		if strings.HasPrefix(trimmed, "%") {
@@ -1066,8 +1141,9 @@ func (c *KickstartConfig) ToString() string {
 			}
 			continue
 		}
-		// Unknown command (e.g. custom command) — copy through.
-		sb.WriteString(line + "\n")
+		// Unknown command — skip here; will be emitted from CustomCmds
+		// at the end to avoid duplication.
+		continue
 	}
 
 	// Pass 2: for structured commands that did not appear in RawLines,
@@ -1361,7 +1437,7 @@ func (c *KickstartConfig) ToString() string {
 	}
 
 	// EULA fallback (only emit if not already covered above and agreed)
-	if c.EULA == "agreed" && !emitted["eula"] {
+	if c.EULASet && c.EULA == "agreed" && !emitted["eula"] {
 		sb.WriteString("eula --agreed\n")
 	}
 

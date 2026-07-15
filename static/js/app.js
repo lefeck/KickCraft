@@ -316,19 +316,23 @@ function getConfigFromForm() {
         },
         // EULA agreement
         eula: document.getElementById('eulaAgreed')?.checked ? 'agreed' : '',
+        eulaSet: document.getElementById('eulaAgreed')?.checked || false,
         bootloader: {
-            location: document.getElementById('bootloaderLocation')?.value || 'mbr',
+            isSet: !!document.getElementById('bootloaderLocation')?.value || !!document.getElementById('bootloaderBootDrive')?.value,
+            location: document.getElementById('bootloaderLocation')?.value || '',
             append: document.getElementById('bootloaderAppend')?.value || '',
             bootDrive: document.getElementById('bootloaderBootDrive')?.value || ''
         },
         firewall: {
-            enabled: document.getElementById('firewallEnabled')?.checked ?? true,
+            isSet: !!document.getElementById('firewallEnabled')?.checked,
+            enabled: document.getElementById('firewallEnabled')?.checked ?? false,
             services: Array.from(document.querySelectorAll('.firewall-service:checked'))
                 .map(el => el.value),
             ports: parseCommaSeparated('firewallPorts')
         },
         selinux: {
-            mode: document.getElementById('selinuxMode')?.value || 'enforcing'
+            isSet: !!document.getElementById('selinuxMode')?.value,
+            mode: document.getElementById('selinuxMode')?.value || ''
         },
         services: {
             enabled: (document.getElementById('servicesEnabled')?.value || '').split(',').filter(s => s.trim()),
@@ -337,10 +341,17 @@ function getConfigFromForm() {
         kdump: {},
         storage: {
             zerombr: document.getElementById('zerombr')?.checked || false,
-            clearAll: document.getElementById('clearpartAll')?.checked || false,
-            initLabel: document.getElementById('initLabel')?.checked || false,
+            clearpart: {
+                isSet: true,
+                type: document.getElementById('clearpartType')?.value || 'all',
+                driveList: parseCommaSeparated('clearpartDrives'),
+                partList: parseCommaSeparated('clearpartList'),
+                initLabel: document.getElementById('initLabel')?.checked || false
+            },
             autopart: document.querySelector('input[name="partitionMode"]:checked')?.value === 'auto',
             autopartType: document.getElementById('autopartType')?.value || 'lvm',
+            fstype: document.getElementById('autopartFstype')?.value || '',
+            nohome: document.getElementById('autopartNohome')?.checked || false,
             partitions: [],
             raids: [],
             volGroups: [],
@@ -601,8 +612,27 @@ function updateFormFromConfig(config) {
 
     // Disk options
     setFormChecked('zerombr', config.storage.zerombr || false);
-    setFormChecked('clearpartAll', config.storage.clearAll !== false);
-    setFormChecked('initLabel', config.storage.initLabel || false);
+    if (config.storage.clearpart) {
+        // Set clearpart type via select
+        const clearpartType = config.storage.clearpart.type || 'all';
+        const typeSelect = document.getElementById('clearpartTypeSelect');
+        const typeHidden = document.getElementById('clearpartType');
+        if (typeSelect) typeSelect.value = clearpartType;
+        if (typeHidden) typeHidden.value = clearpartType;
+        // Set drive list
+        if (config.storage.clearpart.driveList) {
+            document.getElementById('clearpartDrives').value = config.storage.clearpart.driveList.join(', ');
+        }
+        // Set partition list
+        if (config.storage.clearpart.partList) {
+            document.getElementById('clearpartList').value = config.storage.clearpart.partList.join(', ');
+        }
+        // Set initLabel
+        setFormChecked('initLabel', config.storage.clearpart.initLabel || false);
+    } else {
+        // Default to --all
+        document.getElementById('clearpartAll').checked = true;
+    }
 
     // Partition mode
     if (config.storage.autopart || config.storage.autopart === undefined) {
@@ -616,6 +646,8 @@ function updateFormFromConfig(config) {
 
     // Autopart type
     setFormValue('autopartType', config.storage.autopartType || 'lvm');
+    setFormValue('autopartFstype', config.storage.fstype || '');
+    setFormChecked('autopartNohome', config.storage.nohome || false);
 
     // Load storage config into StorageManager
     if (window.StorageManager) {
@@ -719,13 +751,13 @@ function updateFormFromConfig(config) {
 
     // Firewall
     if (config.firewall) {
-        setFormChecked('firewallEnabled', config.firewall.enabled !== false);
+        setFormChecked('firewallEnabled', config.firewall.isSet && config.firewall.enabled);
 
         // Firewall services - always reset all checkboxes first
         const serviceCheckboxes = document.querySelectorAll('.firewall-service');
         serviceCheckboxes.forEach(cb => {
             if (config.firewall.services && Array.isArray(config.firewall.services)) {
-                cb.checked = config.firewall.services.includes(cb.value);
+                cb.checked = config.firewall.isSet && config.firewall.services.includes(cb.value);
             } else {
                 cb.checked = false;
             }
@@ -736,15 +768,18 @@ function updateFormFromConfig(config) {
 
     // SELinux
     if (config.selinux) {
+        // Always set the mode value; isSet only controls whether to emit in output
         setFormValue('selinuxMode', config.selinux.mode || 'enforcing');
     }
 
-    // Power Action
-    setFormValue('powerAction', config.powerAction || '');
+    // Power Action (default: halt per Kickstart spec)
+    setFormValue('powerAction', config.powerAction || 'halt');
 
     // EULA
-    if (config.eula === 'agreed') {
-        setFormChecked('eulaAgreed', true);
+    if (config.eulaSet) {
+        setFormChecked('eulaAgreed', config.eula === 'agreed');
+    } else {
+        setFormChecked('eulaAgreed', false);
     }
 
         // Services
@@ -1558,6 +1593,8 @@ function togglePartitionMode() {
     const mode = document.querySelector('input[name="partitionMode"]:checked')?.value;
     const autoSection = document.getElementById('autopartSection');
     const manualSection = document.getElementById('manualPartitionSection');
+    // Disk Options is always visible (not inside manualPartitionSection anymore)
+    const diskOptionsCard = document.getElementById('diskOptionsCard');
 
     if (mode === 'auto') {
         if (autoSection) autoSection.style.display = 'block';
@@ -1676,6 +1713,16 @@ function setupEventListeners() {
     installMediaRadios.forEach(radio => {
         radio.addEventListener('change', toggleInstallMediaType);
     });
+
+    // Clearpart type select (sync hidden input + dirty flag)
+    const clearpartTypeSelect = document.getElementById('clearpartTypeSelect');
+    const clearpartTypeHidden = document.getElementById('clearpartType');
+    if (clearpartTypeSelect && clearpartTypeHidden) {
+        clearpartTypeSelect.addEventListener('change', () => {
+            clearpartTypeHidden.value = clearpartTypeSelect.value;
+            if (typeof AppState !== 'undefined') AppState.isDirty = true;
+        });
+    }
 
     // Add User button
     const addUserBtn = document.getElementById('addUserBtn');

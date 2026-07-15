@@ -764,16 +764,69 @@ class StorageManager {
             addStorageItemBtn.addEventListener('click', () => this.addSelectedStorageItem());
         }
 
-        ['zerombr', 'clearpartAll', 'initLabel'].forEach(id => {
-            const el = document.getElementById(id);
+        // zerombr checkbox
+        const zerombrEl = document.getElementById('zerombr');
+        if (zerombrEl) {
+            zerombrEl.addEventListener('change', () => {
+                if (typeof window.configManager !== 'undefined') {
+                    window.configManager.config.storage.zerombr = zerombrEl.checked;
+                }
+            });
+        }
+
+        // initLabel checkbox
+        const initLabelEl = document.getElementById('initLabel');
+        if (initLabelEl) {
+            initLabelEl.addEventListener('change', () => {
+                if (typeof window.configManager !== 'undefined') {
+                    if (!window.configManager.config.storage.clearpart) {
+                        window.configManager.config.storage.clearpart = { isSet: true, type: 'all' };
+                    }
+                    window.configManager.config.storage.clearpart.initLabel = initLabelEl.checked;
+                }
+            });
+        }
+
+        // clearpart type radio buttons
+        ['none', 'linux', 'all'].forEach(type => {
+            const el = document.getElementById('clearpart' + type.charAt(0).toUpperCase() + type.slice(1));
             if (el) {
                 el.addEventListener('change', () => {
-                    if (typeof window.configManager !== 'undefined') {
-                        window.configManager.config.storage[id] = el.checked;
+                    if (el.checked && typeof window.configManager !== 'undefined') {
+                        if (!window.configManager.config.storage.clearpart) {
+                            window.configManager.config.storage.clearpart = { isSet: true };
+                        }
+                        window.configManager.config.storage.clearpart.type = type;
                     }
                 });
             }
         });
+
+        // clearpart drives input
+        const clearpartDrivesEl = document.getElementById('clearpartDrives');
+        if (clearpartDrivesEl) {
+            clearpartDrivesEl.addEventListener('input', () => {
+                if (typeof window.configManager !== 'undefined') {
+                    if (!window.configManager.config.storage.clearpart) {
+                        window.configManager.config.storage.clearpart = { isSet: true, type: 'all' };
+                    }
+                    window.configManager.config.storage.clearpart.driveList = parseCommaSeparated('clearpartDrives');
+                }
+            });
+        }
+
+        // clearpart list input
+        const clearpartListEl = document.getElementById('clearpartList');
+        if (clearpartListEl) {
+            clearpartListEl.addEventListener('input', () => {
+                if (typeof window.configManager !== 'undefined') {
+                    if (!window.configManager.config.storage.clearpart) {
+                        window.configManager.config.storage.clearpart = { isSet: true, type: 'all' };
+                    }
+                    window.configManager.config.storage.clearpart.partList = parseCommaSeparated('clearpartList');
+                }
+            });
+        }
     }
 }
 

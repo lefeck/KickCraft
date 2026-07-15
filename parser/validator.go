@@ -65,7 +65,8 @@ func (v *Validator) validateStorage() {
 	storage := v.cfg.Storage
 
 	// Check for zerombr or clearpart
-	if !storage.Zerombr && !storage.ClearAll && len(storage.Partitions) == 0 && len(storage.LogVols) == 0 {
+	hasClearpart := storage.Clearpart.IsSet && storage.Clearpart.Type != ""
+	if !storage.Zerombr && !hasClearpart && len(storage.Partitions) == 0 && len(storage.LogVols) == 0 {
 		v.addWarning("Consider adding zerombr or clearpart to avoid interactive partitioning")
 	}
 
